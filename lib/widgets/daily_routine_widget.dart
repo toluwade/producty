@@ -8,13 +8,16 @@ import '../providers/daily_routine_provider.dart';
 import '../models/daily_routine_entry.dart';
 import '../models/daily_routine_model.dart';
 import '../screens/daily_routine/add_routine_screen.dart';
+import 'task_tile.dart';
 
 class DailyRoutineWidget extends StatelessWidget {
   final DateTime selectedDate;
+  final Function(DateTime)? onDateChanged;
 
   const DailyRoutineWidget({
     Key? key,
     required this.selectedDate,
+    this.onDateChanged,
   }) : super(key: key);
 
   @override
@@ -27,126 +30,173 @@ class DailyRoutineWidget extends StatelessWidget {
         // Get entries for the selected date
         final displayEntries = routineProvider.getEntriesForDate(selectedDate);
 
-        return Container(
-          clipBehavior: Clip.antiAliasWithSaveLayer,
-          padding:
-              EdgeInsets.only(top: 10.h, left: 16.w, right: 16.w, bottom: 22.h),
-          decoration: BoxDecoration(
-            color: isDarkMode
-                ? const Color(0xFF28282A)
-                : Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(40.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                offset: const Offset(0, 0),
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 69.w,
-                      height: 4.h,
-                      margin: EdgeInsets.only(bottom: 12.h),
-                      decoration: BoxDecoration(
-                        color: isDarkMode
-                            ? const Color(0xFF3D3D3D)
-                            : const Color(0xFFEAEAEA),
-                        borderRadius: BorderRadius.circular(2.r),
+        return GestureDetector(
+          onHorizontalDragEnd: (details) {
+            if (details.primaryVelocity == null) return;
+
+            // Determine swipe direction
+            if (details.primaryVelocity! > 0) {
+              // Swiped right - go to previous day
+              final newDate = selectedDate.subtract(const Duration(days: 1));
+              onDateChanged?.call(newDate);
+            } else if (details.primaryVelocity! < 0) {
+              // Swiped left - go to next day
+              final newDate = selectedDate.add(const Duration(days: 1));
+              onDateChanged?.call(newDate);
+            }
+          },
+          child: Container(
+            clipBehavior: Clip.antiAliasWithSaveLayer,
+            padding: EdgeInsets.only(
+                top: 10.h, left: 16.w, right: 16.w, bottom: 22.h),
+            decoration: BoxDecoration(
+              color: isDarkMode
+                  ? const Color(0xFF28282A)
+                  : Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(40.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  offset: const Offset(0, 0),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 69.w,
+                        height: 4.h,
+                        margin: EdgeInsets.only(bottom: 12.h),
+                        decoration: BoxDecoration(
+                          color: isDarkMode
+                              ? const Color(0xFF3D3D3D)
+                              : const Color(0xFFEAEAEA),
+                          borderRadius: BorderRadius.circular(2.r),
+                        ),
                       ),
                     ),
-                  ),
-                  Text(
-                    _getDateHeader(selectedDate),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20.sp,
-                        ),
-                  ),
-                  SizedBox(height: 12.h),
-                  displayEntries.isEmpty
-                      ? Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 20.h),
-                            child: Text(
-                              'No tasks for this day',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    color: Colors.grey,
+                    Text(
+                      _getDateHeader(selectedDate),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.sp,
+                          ),
+                    ),
+                    SizedBox(height: 12.h),
+                    displayEntries.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 20.h),
+                              child: Text(
+                                'No tasks for this day',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Colors.grey,
+                                    ),
+                              ),
+                            ),
+                          )
+                        : Expanded(
+                            child: ReorderableListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: displayEntries.length,
+                              proxyDecorator: (child, index, animation) {
+                                final isDarkMode =
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark;
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: isDarkMode
+                                        ? const Color(0xFF28282A)
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(12.r),
                                   ),
+                                  child: child,
+                                );
+                              },
+                              onReorder: (oldIndex, newIndex) {
+                                var newItemIndex = newIndex;
+                                if (oldIndex < newIndex) {
+                                  newItemIndex--;
+                                }
+
+                                // Update the provider
+                                Provider.of<DailyRoutineProvider>(context,
+                                        listen: false)
+                                    .reorderEntries(
+                                        selectedDate, oldIndex, newItemIndex);
+                              },
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  key: ValueKey('entry_$index'),
+                                  padding: EdgeInsets.symmetric(vertical: 4.h),
+                                  child: TaskTile(
+                                    entry: displayEntries[index],
+                                    onTap: () {
+                                      Provider.of<DailyRoutineProvider>(context,
+                                              listen: false)
+                                          .toggleEntryCompletionForDate(
+                                              selectedDate,
+                                              displayEntries[index]);
+                                    },
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                        )
-                      : Column(
-                          children: List.generate(
-                            displayEntries.length * 2 - 1,
-                            (index) {
-                              if (index.isEven) {
-                                // Routine entries
-                                final entryIndex = index ~/ 2;
-                                return _buildRoutineEntry(
-                                    context,
-                                    displayEntries[entryIndex],
-                                    entryIndex == displayEntries.length - 1);
-                              } else {
-                                // Connecting line
-                                return _buildConnectingLine(context);
-                              }
-                            },
+                    SizedBox(height: 60.h), // Space for the button
+                  ],
+                ),
+                // Add New Task button at the bottom
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: ElevatedButton(
+                    onPressed: () => _showAddRoutineBottomSheet(context),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(double.infinity, 50.h),
+                      backgroundColor: isDarkMode
+                          ? const Color(0xFF3D3D3D)
+                          : const Color(0xFF3D3D3D),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Iconsax.add,
+                          color: Colors.white,
+                          size: 20.sp,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'Add New Task',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
                           ),
                         ),
-                  SizedBox(height: 12.h),
-                ],
-              ),
-              // Positioned Add New Task button at the bottom
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: ElevatedButton(
-                  onPressed: () => _showAddRoutineBottomSheet(context),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(double.infinity, 50.h),
-                    backgroundColor: isDarkMode
-                        ? const Color(0xFF3D3D3D)
-                        : const Color(0xFF3D3D3D),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.r),
+                      ],
                     ),
-                    elevation: 0,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Iconsax.add,
-                        color: Colors.white,
-                        size: 20.sp,
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        'Add New Task',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -267,73 +317,5 @@ class DailyRoutineWidget extends StatelessWidget {
     } catch (e) {
       return null;
     }
-  }
-
-  Widget _buildConnectingLine(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.h),
-      child: Center(
-        child: Container(
-          width: 2.w,
-          height: 20.h,
-          color: Colors.grey.shade300,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRoutineEntry(
-      BuildContext context, DailyRoutineEntry entry, bool isLast) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          children: [
-            Container(
-              width: 24.h,
-              height: 24.h,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: entry.isCompleted
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey.shade300,
-              ),
-              child: Center(
-                child: Icon(
-                  entry.isCompleted ? Icons.check : Icons.circle,
-                  size: 16.sp,
-                  color:
-                      entry.isCompleted ? Colors.white : Colors.grey.shade600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(width: 12.w),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                entry.time,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey.shade600,
-                    ),
-              ),
-              Text(
-                entry.title,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              Text(
-                entry.description,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
   }
 }

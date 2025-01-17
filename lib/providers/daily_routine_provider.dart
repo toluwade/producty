@@ -77,4 +77,23 @@ class DailyRoutineProvider extends ChangeNotifier {
     _routinesByDate.remove(key);
     notifyListeners();
   }
+
+  void reorderEntries(DateTime date, int oldIndex, int newIndex) {
+    final key = DateTime(date.year, date.month, date.day);
+    if (!_routinesByDate.containsKey(key)) return;
+
+    final entries = _routinesByDate[key]!;
+    if (oldIndex < 0 ||
+        newIndex < 0 ||
+        oldIndex >= entries.length ||
+        newIndex >= entries.length) return;
+
+    // Perform the reorder
+    final item = entries.removeAt(oldIndex);
+    entries.insert(newIndex, item);
+
+    // Save the new order
+    _routinesByDate[key] = entries;
+    notifyListeners();
+  }
 }

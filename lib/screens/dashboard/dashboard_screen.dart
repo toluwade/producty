@@ -409,6 +409,30 @@ class _DashboardScreenState extends State<DashboardScreen>
                     height: dailyRoutineHeight,
                     child: DailyRoutineWidget(
                       selectedDate: selectedDate,
+                      onDateChanged: (DateTime newDate) {
+                        final daysDifference =
+                            newDate.difference(DateTime(2024, 1, 1)).inDays;
+                        final newPageIndex = 3650 + (daysDifference ~/ 7);
+
+                        _pageController.animateToPage(
+                          newPageIndex,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+
+                        setState(() {
+                          selectedDate = newDate;
+                          _currentPageIndex = newPageIndex;
+                          final weekStart = _getStartOfWeek(newDate);
+                          dates = List.generate(7,
+                              (index) => weekStart.add(Duration(days: index)));
+                        });
+
+                        // Load routines for the new date
+                        Provider.of<DailyRoutineProvider>(context,
+                                listen: false)
+                            .loadRoutinesForDate(newDate);
+                      },
                     ),
                   ),
                   SizedBox(height: bottomMargin),
