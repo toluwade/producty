@@ -37,7 +37,7 @@ class WeekStripe extends StatelessWidget {
 
   DateTime _getDateFromPageIndex(int pageIndex) {
     final referenceDate = DateTime(2024, 1, 1);
-    return referenceDate.add(Duration(days: pageIndex - 3650));
+    return referenceDate.add(Duration(days: (pageIndex - 3650) * 7));
   }
 
   String _getDayName(int weekday) {
@@ -69,10 +69,24 @@ class WeekStripe extends StatelessWidget {
         controller: pageController,
         allowImplicitScrolling: true,
         physics: const AlwaysScrollableScrollPhysics(),
-        onPageChanged: onPageChanged,
+        onPageChanged: (int pageIndex) {
+          if (isRefreshing) return;
+
+          final currentDate = _getDateFromPageIndex(pageIndex);
+          final weekStart = _getMondayOfWeek(currentDate);
+          final weekDates = _generateWeekDates(weekStart);
+
+          // Find the same weekday in the new week
+          final newSelectedDate =
+              weekStart.add(Duration(days: selectedDate.weekday - 1));
+
+          onPageChanged(pageIndex);
+          onDateSelected(newSelectedDate);
+        },
         itemBuilder: (context, pageIndex) {
           final currentDate = _getDateFromPageIndex(pageIndex);
-          final weekDates = _generateWeekDates(currentDate);
+          final weekStart = _getMondayOfWeek(currentDate);
+          final weekDates = _generateWeekDates(weekStart);
 
           return Container(
             padding: EdgeInsets.symmetric(vertical: 10.h),

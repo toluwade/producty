@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'providers/todo_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/daily_routine_provider.dart';
 import 'screens/auth/auth_screen.dart';
 import 'screens/auth/onboarding_screen.dart';
 import 'screens/auth/otp_screen.dart';
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
         providers: [
           ChangeNotifierProvider(create: (_) => TodoProvider()),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider(create: (_) => DailyRoutineProvider()),
         ],
         child: Consumer<ThemeProvider>(
           builder: (context, themeProvider, _) {

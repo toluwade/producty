@@ -1,97 +1,62 @@
-# Producty - Smart Task Management
+# Producty
 
-A modern, intuitive task management application built with Flutter that helps you stay organized and achieve more.
+A modern productivity and task management application built with Flutter.
 
 ## Features
 
-🎯 **Task Management**
-- Create and organize tasks with ease
-- Set priorities and deadlines
-- Track progress in real-time
-
-🔐 **Secure Authentication**
-- Email/password authentication
-- Social login options (Google, Facebook)
-- Remember me functionality
-
-🎨 **Modern UI/UX**
-- Clean, minimalist design
-- Smooth animations and transitions
-- Intuitive navigation
-- Onboarding experience with intro slides
-
-🛟 **Support System**
-- Built-in help center
-- Quick access support button
-- User guides and FAQs
-
-## Tech Stack
-
-- **Framework**: Flutter
-- **State Management**: Provider
-- **Dependencies**:
-  - `iconsax_flutter`: Modern icon set
-  - `flutter_svg`: SVG support
-  - `shared_preferences`: Local storage
-
-## Project Structure
-
-```
-lib/
-├── screens/          # Application screens
-│   ├── auth/         # Authentication screens
-│   └── home/         # Main app screens
-├── widgets/          # Reusable components
-│   ├── custom_button.dart
-│   ├── custom_checkbox.dart
-│   └── custom_text_field.dart
-├── theme/           # App theming
-└── main.dart        # Entry point
-```
+- **Daily Routines**: Create and manage daily tasks with time-based scheduling
+- **Week View**: Intuitive week-based calendar navigation
+- **Dark/Light Mode**: Full support for both dark and light themes
+- **Task Management**: Create, update, and track your daily tasks
+- **Calendar Integration**: Full calendar view with date selection
+- **Persistent Storage**: Tasks and routines are saved locally
 
 ## Getting Started
 
-1. **Prerequisites**
-   - Flutter (latest version)
-   - Dart SDK
-   - Android Studio / Xcode
+### Prerequisites
 
-2. **Installation**
-   ```bash
-   # Clone the repository
-   git clone https://github.com/thetoluwade/producty.git
+- Flutter SDK (latest stable version)
+- Dart SDK
+- Android Studio / VS Code with Flutter extensions
 
-   # Navigate to project directory
-   cd producty
+### Installation
 
-   # Install dependencies
-   flutter pub get
+1. Clone the repository:
 
-   # Run the app
-   flutter run
-   ```
+```bash
+git clone https://github.com/yourusername/producty.git
+```
 
-## Design Decisions
+2. Navigate to the project directory:
 
-- **AppBar**: Light gray background (#F1F1F1) for subtle contrast
-- **Support Button**: Floating action button in AppBar for easy access
-- **Authentication**: Bottom sheet design for smooth user experience
-- **Social Login**: Minimalist buttons with consistent styling
+```bash
+cd producty
+```
+
+3. Install dependencies:
+
+```bash
+flutter pub get
+```
+
+4. Run the app:
+
+```bash
+flutter run
+```
+
+## Tech Stack
+
+- Flutter
+- Provider for state management
+- SharedPreferences for local storage
+- Custom UI components
+- Material Design 3
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-Toluwade - [@thetoluwade](https://github.com/thetoluwade)
-
-Project Link: [https://github.com/thetoluwade/producty](https://github.com/thetoluwade/producty)
+This project is licensed under the MIT License - see the LICENSE file for details.

@@ -68,17 +68,16 @@ class CalendarBottomSheetState extends State<CalendarBottomSheet> {
           TableCalendar(
             firstDay: DateTime.utc(2020, 1, 1),
             lastDay: DateTime.utc(2030, 12, 31),
-            focusedDay: _selectedDay, // Use selected day as the fixed focus
+            focusedDay: _focusedDay,
             calendarFormat: _calendarFormat,
             selectedDayPredicate: (day) {
               return isSameDay(_selectedDay, day);
             },
             onDaySelected: (selectedDay, focusedDay) {
-              if (!isSameDay(_selectedDay, selectedDay)) {
-                setState(() {
-                  _selectedDay = selectedDay;
-                });
-              }
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
+              });
             },
             onFormatChanged: (format) {
               if (_calendarFormat != format) {
@@ -88,7 +87,9 @@ class CalendarBottomSheetState extends State<CalendarBottomSheet> {
               }
             },
             onPageChanged: (focusedDay) {
-              // Do nothing to keep the week stripe static
+              setState(() {
+                _focusedDay = focusedDay;
+              });
             },
             headerStyle: HeaderStyle(
               formatButtonVisible: false,
@@ -108,21 +109,68 @@ class CalendarBottomSheetState extends State<CalendarBottomSheet> {
               ),
             ),
             calendarStyle: CalendarStyle(
+              // Today's date style
               todayDecoration: BoxDecoration(
-                color: Theme.of(context)
-                    .primaryColor
-                    .withAlpha((0.5 * 255).toInt()),
+                color:
+                    isDarkMode ? const Color(0xFFACF75F) : Colors.transparent,
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: isDarkMode
+                      ? const Color(0xFFACF75F)
+                      : Theme.of(context).primaryColor,
+                  width: 1.5,
+                ),
               ),
+              todayTextStyle: TextStyle(
+                color: isDarkMode ? const Color(0xFF3D3D3D) : Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+
+              // Selected date style
               selectedDecoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
+                color: isDarkMode
+                    ? const Color(0xFFACF75F)
+                    : Theme.of(context).primaryColor,
                 shape: BoxShape.circle,
               ),
+              selectedTextStyle: TextStyle(
+                color: isDarkMode ? const Color(0xFF3D3D3D) : Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+
+              // Default text styles
               defaultTextStyle: TextStyle(
                 color: isDarkMode ? Colors.white : Colors.black,
               ),
               weekendTextStyle: TextStyle(
-                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                color: isDarkMode ? Colors.white70 : Colors.black87,
+              ),
+              outsideTextStyle: TextStyle(
+                color: isDarkMode ? Colors.white24 : Colors.black26,
+              ),
+
+              // Disabled dates
+              disabledTextStyle: TextStyle(
+                color: isDarkMode ? Colors.white24 : Colors.black26,
+              ),
+
+              // Weekend dates
+              weekendDecoration: BoxDecoration(
+                shape: BoxShape.circle,
+              ),
+
+              // Cell margins
+              cellMargin: EdgeInsets.all(4.w),
+              cellPadding: EdgeInsets.zero,
+            ),
+            daysOfWeekStyle: DaysOfWeekStyle(
+              weekdayStyle: TextStyle(
+                color: isDarkMode ? Colors.white70 : Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+              weekendStyle: TextStyle(
+                color: isDarkMode ? Colors.white70 : Colors.black87,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),

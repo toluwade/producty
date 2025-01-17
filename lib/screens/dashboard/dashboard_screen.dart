@@ -11,6 +11,7 @@ import '../../widgets/calendar_bottom_sheet.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../widgets/custom_toast.dart';
 import '../../widgets/week_stripe.dart';
+import '../../providers/daily_routine_provider.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -63,7 +64,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
       final now = DateTime.now();
       final daysDifference = now.difference(DateTime(2024, 1, 1)).inDays;
-      final newPageIndex = 3650 + daysDifference;
+      final newPageIndex = 3650 + (daysDifference ~/ 7);
 
       final weekStart = _getStartOfWeek(now);
       setState(() {
@@ -106,7 +107,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     final now = DateTime.now();
     final daysDifference = now.difference(DateTime(2024, 1, 1)).inDays;
-    final initialPageIndex = 3650 + daysDifference;
+    final initialPageIndex = 3650 + (daysDifference ~/ 7);
 
     final weekStart = _getStartOfWeek(now);
     dates = List.generate(7, (index) => weekStart.add(Duration(days: index)));
@@ -122,16 +123,21 @@ class _DashboardScreenState extends State<DashboardScreen>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+
+    // Load initial routines
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<DailyRoutineProvider>(context, listen: false)
+          .loadRoutinesForDate(selectedDate);
+    });
   }
 
   DateTime _getDateFromPageIndex(int pageIndex) {
     final referenceDate = DateTime(2024, 1, 1);
-    return referenceDate.add(Duration(days: pageIndex - 3650));
+    return referenceDate.add(Duration(days: (pageIndex - 3650) * 7));
   }
 
   (int, int) _calculateMonthAndYear(int pageIndex) {
-    final displayDate = _getDateFromPageIndex(pageIndex);
-    return (displayDate.year, displayDate.month);
+    return (selectedDate.year, selectedDate.month);
   }
 
   String _getMonthName(int month) {
@@ -173,11 +179,11 @@ class _DashboardScreenState extends State<DashboardScreen>
       builder: (context) => CalendarBottomSheet(
         initialSelectedDate: selectedDate,
         currentMonthYear:
-            '${_getMonthName(_calculateMonthAndYear(_currentPageIndex).$2)} ${_calculateMonthAndYear(_currentPageIndex).$1}',
+            '${_getMonthName(selectedDate.month)} ${selectedDate.year}',
         onDateSelected: (DateTime selectedDay) async {
           final daysDifference =
               selectedDay.difference(DateTime(2024, 1, 1)).inDays;
-          final newPageIndex = 3650 + daysDifference;
+          final newPageIndex = 3650 + (daysDifference ~/ 7);
 
           await _pageController.animateToPage(
             newPageIndex,
@@ -216,6 +222,9 @@ class _DashboardScreenState extends State<DashboardScreen>
       final weekStart = _getStartOfWeek(date);
       dates = List.generate(7, (index) => weekStart.add(Duration(days: index)));
     });
+    // Load routines for the selected date
+    Provider.of<DailyRoutineProvider>(context, listen: false)
+        .loadRoutinesForDate(date);
   }
 
   @override
@@ -398,7 +407,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                   SizedBox(height: 5.h),
                   SizedBox(
                     height: dailyRoutineHeight,
-                    child: const DailyRoutineWidget(),
+                    child: DailyRoutineWidget(
+                      selectedDate: selectedDate,
+                    ),
                   ),
                   SizedBox(height: bottomMargin),
                 ],

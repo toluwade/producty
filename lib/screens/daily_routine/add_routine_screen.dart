@@ -4,10 +4,12 @@ import '../../models/daily_routine_entry.dart';
 
 class AddRoutineScreen extends StatefulWidget {
   final Function(DailyRoutineEntry) onRoutineAdded;
+  final DateTime selectedDate;
 
   const AddRoutineScreen({
     Key? key,
     required this.onRoutineAdded,
+    required this.selectedDate,
   }) : super(key: key);
 
   @override
