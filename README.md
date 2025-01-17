@@ -1,62 +1,97 @@
-# Producty
+# Producty - Smart Task Management
 
-A modern productivity and task management application built with Flutter.
+A modern, intuitive task management application built with Flutter that helps you stay organized and achieve more.
 
 ## Features
 
-- **Daily Routines**: Create and manage daily tasks with time-based scheduling
-- **Week View**: Intuitive week-based calendar navigation
-- **Dark/Light Mode**: Full support for both dark and light themes
-- **Task Management**: Create, update, and track your daily tasks
-- **Calendar Integration**: Full calendar view with date selection
-- **Persistent Storage**: Tasks and routines are saved locally
+🎯 **Task Management**
+- Create and organize tasks with ease
+- Set priorities and deadlines
+- Track progress in real-time
 
-## Getting Started
+🔐 **Secure Authentication**
+- Email/password authentication
+- Social login options (Google, Facebook)
+- Remember me functionality
 
-### Prerequisites
+🎨 **Modern UI/UX**
+- Clean, minimalist design
+- Smooth animations and transitions
+- Intuitive navigation
+- Onboarding experience with intro slides
 
-- Flutter SDK (latest stable version)
-- Dart SDK
-- Android Studio / VS Code with Flutter extensions
-
-### Installation
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/yourusername/producty.git
-```
-
-2. Navigate to the project directory:
-
-```bash
-cd producty
-```
-
-3. Install dependencies:
-
-```bash
-flutter pub get
-```
-
-4. Run the app:
-
-```bash
-flutter run
-```
+🛟 **Support System**
+- Built-in help center
+- Quick access support button
+- User guides and FAQs
 
 ## Tech Stack
 
-- Flutter
-- Provider for state management
-- SharedPreferences for local storage
-- Custom UI components
-- Material Design 3
+- **Framework**: Flutter
+- **State Management**: Provider
+- **Dependencies**:
+  - `iconsax_flutter`: Modern icon set
+  - `flutter_svg`: SVG support
+  - `shared_preferences`: Local storage
+
+## Project Structure
+
+```
+lib/
+├── screens/          # Application screens
+│   ├── auth/         # Authentication screens
+│   └── home/         # Main app screens
+├── widgets/          # Reusable components
+│   ├── custom_button.dart
+│   ├── custom_checkbox.dart
+│   └── custom_text_field.dart
+├── theme/           # App theming
+└── main.dart        # Entry point
+```
+
+## Getting Started
+
+1. **Prerequisites**
+   - Flutter (latest version)
+   - Dart SDK
+   - Android Studio / Xcode
+
+2. **Installation**
+   ```bash
+   # Clone the repository
+   git clone https://github.com/thetoluwade/producty.git
+
+   # Navigate to project directory
+   cd producty
+
+   # Install dependencies
+   flutter pub get
+
+   # Run the app
+   flutter run
+   ```
+
+## Design Decisions
+
+- **AppBar**: Light gray background (#F1F1F1) for subtle contrast
+- **Support Button**: Floating action button in AppBar for easy access
+- **Authentication**: Bottom sheet design for smooth user experience
+- **Social Login**: Minimalist buttons with consistent styling
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+Toluwade - [@thetoluwade](https://github.com/thetoluwade)
+
+Project Link: [https://github.com/thetoluwade/producty](https://github.com/thetoluwade/producty)
