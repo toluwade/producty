@@ -12,6 +12,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../widgets/custom_toast.dart';
 import '../../widgets/week_stripe.dart';
 import '../../providers/daily_routine_provider.dart';
+import '../../widgets/coming_soon_bottom_sheet.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -21,15 +22,56 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen>
-    with SingleTickerProviderStateMixin {
-  late PageController _pageController;
-  late AnimationController _animationController;
+    with TickerProviderStateMixin {
+  late final PageController _pageController;
+  late final AnimationController _calendarAnimationController;
+  late final AnimationController _toggleAnimationController;
   int _currentPageIndex = 3650;
   bool _isRefreshing = false;
   DateTime? _lastToastTime;
+  bool _isAnalyticsMode = false;
 
   List<DateTime> dates = [];
   DateTime selectedDate = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize animation controllers first
+    _calendarAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _toggleAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    )..addListener(() {
+        setState(() {});
+      });
+
+    // Initialize other controllers and state
+    final now = DateTime.now();
+    final daysDifference = now.difference(DateTime(2024, 1, 1)).inDays;
+    final initialPageIndex = 3650 + (daysDifference ~/ 7);
+
+    final weekStart = _getStartOfWeek(now);
+    dates = List.generate(7, (index) => weekStart.add(Duration(days: index)));
+    selectedDate = now;
+    _currentPageIndex = initialPageIndex;
+
+    _pageController = PageController(
+      initialPage: initialPageIndex,
+      viewportFraction: 1.0,
+    );
+
+    // Load initial routines
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<DailyRoutineProvider>(context, listen: false)
+          .loadRoutinesForDate(selectedDate);
+    });
+  }
 
   bool _isViewingToday() {
     final now = DateTime.now();
@@ -101,36 +143,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     return date.subtract(Duration(days: date.weekday - 1));
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    final now = DateTime.now();
-    final daysDifference = now.difference(DateTime(2024, 1, 1)).inDays;
-    final initialPageIndex = 3650 + (daysDifference ~/ 7);
-
-    final weekStart = _getStartOfWeek(now);
-    dates = List.generate(7, (index) => weekStart.add(Duration(days: index)));
-    selectedDate = now;
-    _currentPageIndex = initialPageIndex;
-
-    _pageController = PageController(
-      initialPage: initialPageIndex,
-      viewportFraction: 1.0,
-    );
-
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-
-    // Load initial routines
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<DailyRoutineProvider>(context, listen: false)
-          .loadRoutinesForDate(selectedDate);
-    });
-  }
-
   DateTime _getDateFromPageIndex(int pageIndex) {
     final referenceDate = DateTime(2024, 1, 1);
     return referenceDate.add(Duration(days: (pageIndex - 3650) * 7));
@@ -142,18 +154,18 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   String _getMonthName(int month) {
     const months = [
-      'January',
-      'February',
-      'March',
-      'April',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
       'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     return months[month - 1];
   }
@@ -212,7 +224,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         },
       ),
     ).whenComplete(() {
-      _animationController.reverse();
+      _calendarAnimationController.reverse();
     });
   }
 
@@ -225,6 +237,28 @@ class _DashboardScreenState extends State<DashboardScreen>
     // Load routines for the selected date
     Provider.of<DailyRoutineProvider>(context, listen: false)
         .loadRoutinesForDate(date);
+  }
+
+  void _showAnalyticsBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ComingSoonBottomSheet(
+        title: 'Analytics Coming Soon!',
+        description:
+            'Track your productivity, view detailed statistics, and gain insights into your daily routines.',
+        icon: Iconsax.chart_2,
+        onClose: () {
+          Navigator.pop(context);
+          setState(() => _isAnalyticsMode = false);
+          _toggleAnimationController.reverse();
+        },
+      ),
+    ).whenComplete(() {
+      setState(() => _isAnalyticsMode = false);
+      _toggleAnimationController.reverse();
+    });
   }
 
   @override
@@ -272,12 +306,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                   child: GestureDetector(
                     onTap: () {
                       _showCalendarBottomSheet();
-                      _animationController.forward(from: 0.0);
+                      _calendarAnimationController.forward(from: 0.0);
                     },
                     child: Container(
                       constraints: BoxConstraints(
-                        minWidth: 120.w,
-                        maxWidth: constraints.maxWidth * 0.5,
+                        minWidth: 90.w,
+                        maxWidth: 120.w,
                       ),
                       height: 35.h,
                       decoration: BoxDecoration(
@@ -287,7 +321,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w),
+                        padding: EdgeInsets.symmetric(horizontal: 6.w),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -296,35 +330,32 @@ class _DashboardScreenState extends State<DashboardScreen>
                               color: isDarkMode
                                   ? Colors.white
                                   : const Color(0xFF3D3D3D),
-                              size: 24.sp,
+                              size: 20.sp,
                             ),
-                            SizedBox(width: 5.w),
+                            SizedBox(width: 4.w),
                             Expanded(
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  currentMonthYear,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: isDarkMode
-                                        ? Colors.white
-                                        : const Color(0xFF3D3D3D),
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                              child: Text(
+                                currentMonthYear,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: isDarkMode
+                                      ? Colors.white
+                                      : const Color(0xFF3D3D3D),
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
-                            SizedBox(width: 5.w),
+                            SizedBox(width: 2.w),
                             RotationTransition(
                               turns: Tween(begin: 0.0, end: 0.5)
-                                  .animate(_animationController),
+                                  .animate(_calendarAnimationController),
                               child: Icon(
                                 Icons.keyboard_arrow_down,
                                 color: isDarkMode
                                     ? Colors.white
                                     : const Color(0xFF3D3D3D),
-                                size: 20.sp,
+                                size: 18.sp,
                               ),
                             ),
                           ],
@@ -333,6 +364,137 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                   ),
                 ),
+                const Spacer(),
+                Container(
+                  height: 27.h,
+                  width: 150.w,
+                  padding: EdgeInsets.symmetric(horizontal: 1.w),
+                  decoration: BoxDecoration(
+                    color: isDarkMode ? const Color(0xFF2C2C2C) : Colors.white,
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: GestureDetector(
+                    onHorizontalDragEnd: (details) {
+                      if (details.primaryVelocity! > 0) {
+                        // Swipe right
+                        if (_isAnalyticsMode) {
+                          HapticFeedback.lightImpact();
+                          setState(() => _isAnalyticsMode = false);
+                          _toggleAnimationController.reverse();
+                        }
+                      } else if (details.primaryVelocity! < 0) {
+                        // Swipe left
+                        if (!_isAnalyticsMode) {
+                          HapticFeedback.lightImpact();
+                          setState(() => _isAnalyticsMode = true);
+                          _toggleAnimationController.forward();
+                        }
+                      }
+                    },
+                    child: Stack(
+                      children: [
+                        AnimatedPositioned(
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOutCirc,
+                          left: _isAnalyticsMode ? 76.w : 1.w,
+                          right: _isAnalyticsMode ? 1.w : 76.w,
+                          top: 3.h,
+                          bottom: 3.h,
+                          child: Container(
+                            width: 73.w,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFB4F481),
+                              borderRadius: BorderRadius.circular(16.r),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () {
+                                  HapticFeedback.lightImpact();
+                                  setState(() => _isAnalyticsMode = false);
+                                  _toggleAnimationController.reverse();
+                                },
+                                child: Container(
+                                  height: 27.h,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (!_isAnalyticsMode)
+                                        Icon(
+                                          Iconsax.clock,
+                                          size: 16.sp,
+                                          color: Colors.black,
+                                        ),
+                                      if (!_isAnalyticsMode)
+                                        SizedBox(width: 2.w),
+                                      Text(
+                                        'Timeline',
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          fontWeight: FontWeight.w500,
+                                          color: !_isAnalyticsMode
+                                              ? Colors.black
+                                              : (isDarkMode
+                                                  ? Colors.white
+                                                  : Colors.black),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () {
+                                  HapticFeedback.lightImpact();
+                                  setState(() => _isAnalyticsMode = true);
+                                  _toggleAnimationController.forward();
+                                  _showAnalyticsBottomSheet();
+                                },
+                                child: Container(
+                                  height: 27.h,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (_isAnalyticsMode)
+                                        Icon(
+                                          Iconsax.chart_2,
+                                          size: 16.sp,
+                                          color: Colors.black,
+                                        ),
+                                      if (_isAnalyticsMode)
+                                        SizedBox(width: 2.w),
+                                      Text(
+                                        'Analytics',
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          fontWeight: FontWeight.w500,
+                                          color: _isAnalyticsMode
+                                              ? Colors.black
+                                              : (isDarkMode
+                                                  ? Colors.white
+                                                  : Colors.black),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
                 Flexible(
                   flex: 1,
                   child: Container(
@@ -450,7 +612,8 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void dispose() {
     _pageController.dispose();
-    _animationController.dispose();
+    _calendarAnimationController.dispose();
+    _toggleAnimationController.dispose();
     super.dispose();
   }
 }

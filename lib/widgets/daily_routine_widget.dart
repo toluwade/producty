@@ -9,6 +9,7 @@ import '../models/daily_routine_entry.dart';
 import '../models/daily_routine_model.dart';
 import '../screens/daily_routine/add_routine_screen.dart';
 import 'task_tile.dart';
+import 'add_task_bottom_sheet.dart';
 
 class DailyRoutineWidget extends StatelessWidget {
   final DateTime selectedDate;
@@ -162,37 +163,8 @@ class DailyRoutineWidget extends StatelessWidget {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: ElevatedButton(
-                    onPressed: () => _showAddRoutineBottomSheet(context),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 50.h),
-                      backgroundColor: isDarkMode
-                          ? const Color(0xFF3D3D3D)
-                          : const Color(0xFF3D3D3D),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Iconsax.add,
-                          color: Colors.white,
-                          size: 20.sp,
-                        ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          'Add New Task',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
+                  child: AddTaskBottomSheet(
+                    onAddTask: () => _showAddRoutineBottomSheet(context),
                   ),
                 ),
               ],
