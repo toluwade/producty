@@ -9,7 +9,6 @@ import '../models/daily_routine_entry.dart';
 import '../models/daily_routine_model.dart';
 import '../screens/daily_routine/add_routine_screen.dart';
 import 'task_tile.dart';
-import 'add_task_bottom_sheet.dart';
 
 class DailyRoutineWidget extends StatelessWidget {
   final DateTime selectedDate;
@@ -155,17 +154,7 @@ class DailyRoutineWidget extends StatelessWidget {
                               },
                             ),
                           ),
-                    SizedBox(height: 60.h), // Space for the button
                   ],
-                ),
-                // Add New Task button at the bottom
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: AddTaskBottomSheet(
-                    onAddTask: () => _showAddRoutineBottomSheet(context),
-                  ),
                 ),
               ],
             ),
@@ -227,46 +216,6 @@ class DailyRoutineWidget extends StatelessWidget {
       'Dec'
     ];
     return months[month - 1];
-  }
-
-  void _showAddRoutineBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => AddRoutineScreen(
-        onRoutineAdded: (newEntry) {
-          _saveRoutineEntry(context, newEntry);
-        },
-        selectedDate: selectedDate,
-      ),
-    );
-  }
-
-  void _saveRoutineEntry(BuildContext context, DailyRoutineEntry newEntry) {
-    final routineService = DailyRoutineService();
-    final parsedTime = _parseTime(newEntry.time);
-
-    final task = DailyRoutineTask(
-      id: const uuid.Uuid().v4(),
-      title: newEntry.title,
-      description: newEntry.description,
-      startTime: parsedTime,
-    );
-
-    // Save the task for the selected date
-    routineService.saveTaskForDate(selectedDate, task);
-
-    // Update the UI through the provider
-    try {
-      Provider.of<DailyRoutineProvider>(context, listen: false)
-          .addRoutineEntryForDate(selectedDate, newEntry);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Unable to add routine: $e')),
-      );
-    }
-    Navigator.of(context).pop();
   }
 
   // Helper method to parse time string to DateTime

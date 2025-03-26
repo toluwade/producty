@@ -30,6 +30,8 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
   String _selectedFrequency = 'Once';
   String _selectedReminder = 'At start of task';
   int _currentStep = 0;
+  double _scrollOffset = 0.0;
+  DateTime? _baseScrollTime;
 
   static const String _createTaskText = 'Create a New Task';
 
@@ -108,75 +110,134 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
             child: Container(
               height: 110.h,
               padding: EdgeInsets.only(top: 4.h, bottom: 4.h),
-              child: GestureDetector(
-                onVerticalDragUpdate: (details) {
-                  if (details.delta.dy.abs() > 2) {
-                    setState(() {
-                      final baseTime = _parseTime(_selectedTime);
-                      if (baseTime != null) {
-                        // Determine direction and amount of time to add/subtract
-                        final minutesToAdd = details.delta.dy > 0 ? 15 : -15;
-                        final newTime =
-                            baseTime.add(Duration(minutes: minutesToAdd));
-                        _selectedTime = _formatTime(newTime);
-                        _updateTimeRange();
-                        HapticFeedback.lightImpact();
-                      }
-                    });
-                  }
-                },
-                child: ShaderMask(
-                  shaderCallback: (Rect bounds) {
-                    return LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.white,
-                        Colors.white,
-                        Colors.transparent
-                      ],
-                      stops: [0.0, 0.2, 0.8, 1.0],
-                    ).createShader(bounds);
-                  },
-                  blendMode: BlendMode.dstIn,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: List.generate(7, (index) {
-                      final isMiddle = index == 3;
-                      final time = _generateTimeForIndex(index - 2);
-                      final distanceFromMiddle = (index - 3).abs();
-                      final opacity = isMiddle
-                          ? 1.0
-                          : distanceFromMiddle <= 2
-                              ? (1.0 - (0.35 * distanceFromMiddle))
-                              : 0.25;
-                      final verticalOffset = (index - 3) * 22.h;
-
-                      return Positioned(
-                        top: 55.h + verticalOffset - (isMiddle ? 16.h : 10.h),
-                        child: GestureDetector(
-                          onTap: () {
-                            HapticFeedback.heavyImpact();
+              child: Stack(
+                children: [
+                  // Expanded invisible touch area
+                  Positioned.fill(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onVerticalDragStart: (details) {
+                        _baseScrollTime = _parseTime(_selectedTime);
+                        _scrollOffset = 0.0;
+                      },
+                      onVerticalDragUpdate: (details) {
+                        if (_baseScrollTime != null) {
+                          // Prevent modal drag interference
+                          if (details.primaryDelta != null &&
+                              details.primaryDelta!.abs() < 50) {
                             setState(() {
-                              _selectedTime = time;
+                              _scrollOffset += details.delta.dy;
+                              // Convert scroll offset to minutes (15 min intervals)
+                              final minutesToAdd =
+                                  (_scrollOffset / 20.h).round() * 15;
+                              final newTime = _baseScrollTime!
+                                  .add(Duration(minutes: minutesToAdd));
+                              _selectedTime = _formatTime(newTime);
                               _updateTimeRange();
+
+                              // Haptic feedback every 15 minutes
+                              if (minutesToAdd % 15 == 0 &&
+                                  details.delta.dy.abs() > 1) {
+                                HapticFeedback.lightImpact();
+                              }
                             });
-                          },
-                          child: Container(
-                            height: isMiddle ? 32.h : 20.h,
-                            width: isMiddle ? 162.w : 120.w,
-                            decoration: BoxDecoration(
-                              color: isMiddle
-                                  ? const Color(0xFFACF75F)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(6.r),
-                            ),
-                            child: Center(
-                              child: Opacity(
-                                opacity: opacity,
-                                child: Text(
-                                  time,
+                          }
+                        }
+                      },
+                      onVerticalDragEnd: (details) {
+                        final velocity = details.primaryVelocity ?? 0;
+                        if (velocity.abs() > 200) {
+                          final direction = velocity > 0 ? 1 : -1;
+                          setState(() {
+                            if (_baseScrollTime != null) {
+                              final minutesToAdd = direction * 15;
+                              final newTime = _parseTime(_selectedTime)?.add(
+                                Duration(minutes: minutesToAdd),
+                              );
+                              if (newTime != null) {
+                                _selectedTime = _formatTime(newTime);
+                                _updateTimeRange();
+                                HapticFeedback.mediumImpact();
+                              }
+                            }
+                          });
+                        }
+                        _baseScrollTime = null;
+                        _scrollOffset = 0.0;
+                      },
+                      child: Container(),
+                    ),
+                  ),
+                  // Fixed selected state highlight
+                  Positioned.fill(
+                    child: Center(
+                      child: Container(
+                        height: 32.h,
+                        width: 162.w,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFACF75F),
+                          borderRadius: BorderRadius.circular(6.r),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Time slots display
+                  ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.white,
+                          Colors.white,
+                          Colors.transparent
+                        ],
+                        stops: [0.0, 0.2, 0.8, 1.0],
+                      ).createShader(bounds);
+                    },
+                    blendMode: BlendMode.dstIn,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: List.generate(11, (index) {
+                        final isMiddle = index == 5;
+                        final time = _generateTimeForIndex(index - 5);
+                        final distanceFromMiddle = (index - 5).abs();
+                        final opacity = isMiddle
+                            ? 1.0
+                            : distanceFromMiddle <= 4
+                                ? (1.0 - (0.2 * distanceFromMiddle))
+                                : 0.2;
+
+                        // Calculate position with scroll offset
+                        final baseOffset = (index - 5) * 22.h;
+                        final verticalOffset = baseOffset +
+                            (_baseScrollTime != null ? _scrollOffset : 0);
+
+                        return AnimatedPositioned(
+                          duration: _baseScrollTime != null
+                              ? Duration.zero
+                              : const Duration(milliseconds: 200),
+                          curve: Curves.easeOutCubic,
+                          top: 55.h + verticalOffset - (isMiddle ? 16.h : 10.h),
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTapDown: (_) => HapticFeedback.lightImpact(),
+                            onTapUp: (_) {
+                              setState(() {
+                                _selectedTime = time;
+                                _updateTimeRange();
+                              });
+                              HapticFeedback.mediumImpact();
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeOutCubic,
+                              height: isMiddle ? 32.h : 20.h,
+                              width: isMiddle ? 162.w : 120.w,
+                              child: Center(
+                                child: AnimatedDefaultTextStyle(
+                                  duration: const Duration(milliseconds: 200),
                                   style: TextStyle(
                                     color: isMiddle
                                         ? const Color(0xFF3D3D3D)
@@ -185,19 +246,20 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                                             : Colors.black),
                                     fontSize: isMiddle ? 14.sp : 13.sp,
                                     fontWeight: isMiddle
-                                        ? FontWeight.w600
+                                        ? FontWeight.w800
                                         : FontWeight.normal,
                                     letterSpacing: isMiddle ? 0.5 : 0,
                                   ),
+                                  child: Text(time),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }),
+                        );
+                      }),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
@@ -565,8 +627,7 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
     final baseTime = _parseTime(_selectedTime);
     if (baseTime == null) return _selectedTime;
 
-    final minutesToAdd =
-        (index - 2) * 15; // -30, -15, 0, 15, 30 minutes from selected time
+    final minutesToAdd = index * 15; // Each slot is 15 minutes apart
     final newTime = baseTime.add(Duration(minutes: minutesToAdd));
     return _formatTime(newTime);
   }
@@ -593,179 +654,189 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
           color: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
           borderRadius: BorderRadius.circular(30.r),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 16.h),
-            Center(
-              child: Container(
-                width: 40.w,
-                height: 4.h,
-                decoration: BoxDecoration(
-                  color: isDarkMode ? Colors.grey[800] : Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2.r),
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 16.h),
+              Center(
+                child: Container(
+                  width: 40.w,
+                  height: 4.h,
+                  decoration: BoxDecoration(
+                    color: isDarkMode ? Colors.grey[800] : Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 16.h),
-            Padding(
-              padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 12.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    height: 32.h,
-                    padding: EdgeInsets.symmetric(horizontal: 12.w),
-                    decoration: BoxDecoration(
-                      color: isDarkMode
-                          ? Colors.grey[800]
-                          : const Color(0xFFACF75F),
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Iconsax.task_square,
-                          size: 16.sp,
-                          color: isDarkMode
-                              ? const Color(0xFFACF75F)
-                              : const Color(0xFF3D3D3D),
-                        ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          _createTaskText,
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w500,
-                            color: isDarkMode ? Colors.white : Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: EdgeInsets.all(8.w),
+              SizedBox(height: 16.h),
+              Padding(
+                padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 12.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      height: 32.h,
+                      padding: EdgeInsets.symmetric(horizontal: 12.w),
                       decoration: BoxDecoration(
                         color: isDarkMode
-                            ? Colors.grey[800]!.withOpacity(0.5)
-                            : Colors.grey[100],
-                        borderRadius: BorderRadius.circular(12.r),
+                            ? Colors.grey[800]
+                            : const Color(0xFFACF75F),
+                        borderRadius: BorderRadius.circular(20.r),
                       ),
-                      child: Icon(
-                        Iconsax.close_circle,
-                        size: 20.sp,
-                        color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Iconsax.task_square,
+                            size: 16.sp,
+                            color: isDarkMode
+                                ? const Color(0xFFACF75F)
+                                : const Color(0xFF3D3D3D),
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            _createTaskText,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w500,
+                              color: isDarkMode ? Colors.white : Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              height: 1,
-              margin: EdgeInsets.symmetric(horizontal: 16.w),
-              color: isDarkMode ? Colors.grey[800] : Colors.grey[200],
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: EdgeInsets.all(12.w),
-                  child: _steps[_currentStep],
+                    GestureDetector(
+                      onTap: () {
+                        FocusScope.of(context).unfocus();
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(8.w),
+                        decoration: BoxDecoration(
+                          color: isDarkMode
+                              ? Colors.grey[800]!.withOpacity(0.5)
+                              : Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Icon(
+                          Iconsax.close_circle,
+                          size: 20.sp,
+                          color:
+                              isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            Container(
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
-                color: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30.r),
-                  bottomRight: Radius.circular(30.r),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -5),
-                  ),
-                ],
+              Container(
+                height: 1,
+                margin: EdgeInsets.symmetric(horizontal: 16.w),
+                color: isDarkMode ? Colors.grey[800] : Colors.grey[200],
               ),
-              child: Row(
-                children: [
-                  if (_currentStep > 0)
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Padding(
+                    padding: EdgeInsets.all(12.w),
+                    child: _steps[_currentStep],
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  color: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(30.r),
+                    bottomRight: Radius.circular(30.r),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    if (_currentStep > 0)
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: _previousStep,
+                          child: Container(
+                            height: 48.h,
+                            margin: EdgeInsets.only(right: 8.w),
+                            decoration: BoxDecoration(
+                              color: isDarkMode
+                                  ? Colors.grey[800]!.withOpacity(0.5)
+                                  : Colors.grey[100],
+                              borderRadius: BorderRadius.circular(15.r),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Back',
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color:
+                                      isDarkMode ? Colors.white : Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     Expanded(
+                      flex: 2,
                       child: GestureDetector(
-                        onTap: _previousStep,
+                        onTap: () {
+                          if (_isLastStep) {
+                            if (_titleController.text.isNotEmpty) {
+                              final newEntry = DailyRoutineEntry(
+                                title: _titleController.text,
+                                description: _detailsController.text,
+                                time: _selectedTime,
+                                isCompleted: false,
+                              );
+                              widget.onRoutineAdded(newEntry);
+                            }
+                          } else {
+                            _nextStep();
+                          }
+                        },
                         child: Container(
                           height: 48.h,
-                          margin: EdgeInsets.only(right: 8.w),
                           decoration: BoxDecoration(
                             color: isDarkMode
-                                ? Colors.grey[800]!.withOpacity(0.5)
-                                : Colors.grey[100],
+                                ? const Color(0xFFACF75F)
+                                : const Color(0xFF3D3D3D),
                             borderRadius: BorderRadius.circular(15.r),
                           ),
                           child: Center(
                             child: Text(
-                              'Back',
+                              _isLastStep ? _createTaskText : 'Continue',
                               style: TextStyle(
                                 fontSize: 15.sp,
                                 fontWeight: FontWeight.w600,
-                                color: isDarkMode ? Colors.white : Colors.black,
+                                color: isDarkMode ? Colors.black : Colors.white,
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  Expanded(
-                    flex: 2,
-                    child: GestureDetector(
-                      onTap: () {
-                        if (_isLastStep) {
-                          if (_titleController.text.isNotEmpty) {
-                            final newEntry = DailyRoutineEntry(
-                              title: _titleController.text,
-                              description: _detailsController.text,
-                              time: _selectedTime,
-                              isCompleted: false,
-                            );
-                            widget.onRoutineAdded(newEntry);
-                          }
-                        } else {
-                          _nextStep();
-                        }
-                      },
-                      child: Container(
-                        height: 48.h,
-                        decoration: BoxDecoration(
-                          color: isDarkMode
-                              ? const Color(0xFFACF75F)
-                              : const Color(0xFF3D3D3D),
-                          borderRadius: BorderRadius.circular(15.r),
-                        ),
-                        child: Center(
-                          child: Text(
-                            _isLastStep ? _createTaskText : 'Continue',
-                            style: TextStyle(
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.w600,
-                              color: isDarkMode ? Colors.black : Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
