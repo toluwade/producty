@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'custom_bottom_sheet.dart';
 
 class ThemeSettingsSheet extends StatelessWidget {
