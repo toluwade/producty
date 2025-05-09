@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/colors.dart';
+
+import '../core/constants/colors.dart';
 
 class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -15,6 +16,7 @@ class CustomTextField extends StatefulWidget {
   final Color? fillColor;
   final Color? textColor;
   final bool obscureText;
+  final String? Function(String?)? validator; // Added validator parameter
 
   const CustomTextField({
     super.key,
@@ -30,6 +32,7 @@ class CustomTextField extends StatefulWidget {
     this.fillColor,
     this.textColor,
     this.obscureText = false,
+    this.validator, // Added validator
   });
 
   @override
@@ -66,11 +69,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final defaultFillColor = isDark ? const Color(0xFF1C1C1E) : const Color(0xFFF3F3F3);
+    final defaultFillColor =
+        isDark ? const Color(0xFF1C1C1E) : const Color(0xFFF3F3F3);
     final defaultTextColor = isDark ? AppColors.darkText : AppColors.text;
-    final defaultIconColor = isDark 
+    final defaultIconColor = isDark
         ? (_isFocused ? const Color(0xFFFFFFFF) : const Color(0xFF7B7B80))
-        : AppColors.text.withOpacity(_isFocused ? 1 : 0.5);
+        : AppColors.text.withValues(alpha: _isFocused ? 1 : 0.5);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,14 +90,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   )
                 : _isFocused
                     ? Border.all(
-                        color: isDark 
+                        color: isDark
                             ? const Color(0xFF3D3D3D)
                             : const Color(0xFFDEDEDE),
                         width: 1,
                       )
                     : null,
           ),
-          child: TextField(
+          child: TextFormField(
             controller: widget.controller,
             focusNode: _focusNode,
             keyboardType: widget.keyboardType,
@@ -105,13 +109,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
               fontSize: 16,
               color: widget.textColor ?? defaultTextColor,
             ),
+            validator: widget.validator, // Set the validator function here
             decoration: InputDecoration(
               hintText: widget.placeholder,
               hintStyle: GoogleFonts.dmSans(
                 fontSize: 16,
                 color: isDark
                     ? const Color(0xFF7B7B80)
-                    : (widget.textColor ?? defaultTextColor).withOpacity(0.5),
+                    : (widget.textColor ?? defaultTextColor)
+                        .withValues(alpha: 0.5),
               ),
               prefixIcon: widget.icon != null
                   ? Icon(
@@ -129,16 +135,16 @@ class _CustomTextFieldState extends State<CustomTextField> {
             ),
           ),
         ),
-        if (widget.error != null) ...[
-          const SizedBox(height: 8),
-          Text(
-            widget.error!,
-            style: GoogleFonts.dmSans(
-              fontSize: 14,
-              color: isDark ? AppColors.darkError : AppColors.error,
-            ),
-          ),
-        ],
+        // if (widget.error != null) ...[
+        //   const SizedBox(height: 8),
+        //   Text(
+        //     widget.error!,
+        //     style: GoogleFonts.dmSans(
+        //       fontSize: 14,
+        //       color: isDark ? AppColors.darkError : AppColors.error,
+        //     ),
+        //   ),
+        // ],
       ],
     );
   }

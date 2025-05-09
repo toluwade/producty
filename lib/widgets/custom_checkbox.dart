@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import '../theme/colors.dart';
+
+import '../core/constants/colors.dart';
 
 class CustomCheckbox extends StatelessWidget {
   final bool value;
@@ -19,8 +20,9 @@ class CustomCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final activeColor = checkColor ?? (isDark ? AppColors.darkPrimary : AppColors.primary);
-    
+    final activeColor =
+        checkColor ?? (isDark ? AppColors.darkPrimary : AppColors.primary);
+
     return InkWell(
       onTap: () => onChanged(!value),
       borderRadius: BorderRadius.circular(6),
@@ -34,7 +36,9 @@ class CustomCheckbox extends StatelessWidget {
               color: value ? activeColor : Colors.transparent,
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
-                color: value ? activeColor : (isDark ? AppColors.darkGrey : Colors.grey[400]!),
+                color: value
+                    ? activeColor
+                    : (isDark ? AppColors.darkGrey : Colors.grey[400]!),
               ),
             ),
             child: value

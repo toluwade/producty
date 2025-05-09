@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../core/constants/colors.dart';
+
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
@@ -76,5 +78,17 @@ class AppTheme {
       systemNavigationBarDividerColor: Colors.transparent,
       systemNavigationBarContrastEnforced: false,
     );
+  }
+
+  static Color background(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark
+        ? AppColors.darkBackground
+        : AppColors.background;
+  }
+
+  static Color surface(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? AppColors.light : AppColors.dark;
   }
 }

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:producty/config/theme.dart';
-import 'package:producty/feature/auth/data/model/auth_session.dart';
+import 'package:producty/feature/auth/presentation/screens/auth_screen.dart';
 
 import 'config/theme_provider.dart';
-import 'feature/auth/data/model/user.dart';
-import 'screens/auth/auth_screen.dart';
 import 'screens/auth/onboarding_screen.dart';
 import 'screens/auth/otp_screen.dart';
 import 'screens/auth/success_screen.dart';
@@ -28,10 +26,6 @@ void main() async {
   );
 
   await Hive.initFlutter();
-
-  Hive
-    ..registerAdapter(AuthSessionAdapter())
-    ..registerAdapter(UserAdapter());
 
   runApp(
     const ProviderScope(
@@ -80,7 +74,7 @@ class MyApp extends ConsumerWidget {
       routes: {
         '/': (context) => const SplashScreen(),
         '/onboarding': (context) => const OnboardingScreen(),
-        '/auth': (context) => const AuthScreen(),
+        '/auth': (context) => const AuthenticationScreen(),
         '/dashboard': (context) => const DashboardScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/calendar': (context) => const CalendarScreen(),

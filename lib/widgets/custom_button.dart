@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/colors.dart';
+
+import '../core/constants/colors.dart';
 
 class CustomButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -25,8 +26,10 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final buttonColor = color ?? (isDark ? AppColors.darkPrimary : AppColors.primary);
-    final textColor = labelColor ?? (isDark ? AppColors.darkText : AppColors.white);
+    final buttonColor =
+        color ?? (isDark ? AppColors.darkPrimary : AppColors.primary);
+    final textColor =
+        labelColor ?? (isDark ? AppColors.darkText : AppColors.white);
 
     return SizedBox(
       width: width ?? double.infinity,

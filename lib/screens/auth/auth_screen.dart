@@ -1,12 +1,12 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:producty/core/constants/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../widgets/custom_text_field.dart';
-import '../../widgets/custom_button.dart';
+
 import '../../widgets/custom_toast.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -16,13 +16,13 @@ class AuthScreen extends StatefulWidget {
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateMixin {
+class _AuthScreenState extends State<AuthScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
   String? _emailError;
   bool _isLoading = false;
   int _currentPage = 0;
-  late final AnimationController _animationController;
   late final PageController _pageController;
   Timer? _autoPlayTimer;
   bool _isUserInteracting = false;
@@ -66,10 +66,6 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _emailFocusNode.addListener(_onFocusChange);
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
     _pageController = PageController();
     _startAutoPlay();
   }
@@ -80,7 +76,6 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     _pageController.dispose();
     _emailFocusNode.removeListener(_onFocusChange);
     _emailFocusNode.dispose();
-    _animationController.dispose();
     _autoPlayTimer?.cancel();
     super.dispose();
   }
@@ -133,18 +128,18 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
 
     final email = _emailController.text.toLowerCase();
     final isExisting = email == 'mykel@gmail.com';
-    
+
     // Save email to preferences for later use
     final SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.setString('email', email);
     await preferences.setBool('is_existing', isExisting);
-    
+
     if (!mounted) return;
-    
+
     setState(() {
       _isLoading = false;
     });
-    
+
     // Navigate to OTP screen
     Navigator.pushNamed(
       context,
@@ -235,166 +230,6 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildAuthForm() {
-    final theme = Theme.of(context);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Email address',
-          style: GoogleFonts.dmSans(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: theme.brightness == Brightness.dark
-                ? const Color(0xFF99999F)
-                : const Color(0xFF3D3D3D),
-          ),
-        ),
-        const SizedBox(height: 8),
-        CustomTextField(
-          controller: _emailController,
-          focusNode: _emailFocusNode,
-          placeholder: 'Enter your email',
-          icon: Iconsax.sms,
-          keyboardType: TextInputType.emailAddress,
-          error: _emailError,
-          onChanged: (value) {
-            if (_emailError != null) {
-              setState(() => _emailError = null);
-            }
-          },
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 24,
-              height: 24,
-              child: Checkbox(
-                value: _rememberMe,
-                onChanged: (value) {
-                  setState(() {
-                    _rememberMe = value ?? false;
-                  });
-                },
-                activeColor: theme.brightness == Brightness.dark
-                    ? const Color(0xFFFFFFFF)
-                    : const Color(0xFF3D3D3D),
-                checkColor: theme.brightness == Brightness.dark
-                    ? const Color(0xFF3D3D3D)
-                    : const Color(0xFFFFFFFF),
-                side: BorderSide(
-                  color: theme.brightness == Brightness.dark
-                      ? const Color(0xFFFFFFFF)
-                      : const Color(0xFF3D3D3D),
-                  width: 1,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Remember me',
-              style: GoogleFonts.dmSans(
-                fontSize: 14,
-                color: const Color(0xFF8E8E93),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        CustomButton(
-          onPressed: _handleContinue,
-          text: 'Login/Signup',
-          isLoading: _isLoading,
-          color: const Color(0xFF3D3D3D),
-          labelColor: Colors.white,
-        ),
-        const SizedBox(height: 24),
-        Row(
-          children: [
-            Expanded(
-                child: Divider(
-                    color: theme.brightness == Brightness.dark
-                        ? const Color(0xFF3D3D3D)
-                        : const Color(0xFFE5E5EA))),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'or continue with',
-                style: GoogleFonts.dmSans(
-                  fontSize: 14,
-                  color: const Color(0xFF8E8E93),
-                ),
-              ),
-            ),
-            Expanded(
-                child: Divider(
-                    color: theme.brightness == Brightness.dark
-                        ? const Color(0xFF3D3D3D)
-                        : const Color(0xFFE5E5EA))),
-          ],
-        ),
-        const SizedBox(height: 24),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 115,
-              height: 44,
-              decoration: BoxDecoration(
-                color: theme.brightness == Brightness.dark
-                    ? const Color(0xFF3D3D3D)
-                    : const Color(0xFFF3F3F3),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: IconButton(
-                onPressed: () {
-                  // Handle Google sign in
-                },
-                icon: FaIcon(
-                  FontAwesomeIcons.google,
-                  size: 24,
-                  color: theme.brightness == Brightness.dark
-                      ? const Color(0xFFFFFFFF)
-                      : const Color(0xFF3D3D3D),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Container(
-              width: 115,
-              height: 44,
-              decoration: BoxDecoration(
-                color: theme.brightness == Brightness.dark
-                    ? const Color(0xFF3D3D3D)
-                    : const Color(0xFFF3F3F3),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: IconButton(
-                onPressed: () {
-                  // Handle Facebook sign in
-                },
-                icon: FaIcon(
-                  FontAwesomeIcons.facebook,
-                  size: 24,
-                  color: theme.brightness == Brightness.dark
-                      ? const Color(0xFFFFFFFF)
-                      : const Color(0xFF3D3D3D),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 0),
-      ],
-    );
-  }
-
   Widget _buildDots() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -437,12 +272,12 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: theme.brightness == Brightness.dark
-          ? const Color(0xFF1C1C1E)
-          : const Color(0xFFF1F1F1),
+          ? AppColors.darkBackground
+          : AppColors.background,
       appBar: AppBar(
         backgroundColor: theme.brightness == Brightness.dark
-            ? const Color(0xFF1C1C1E)
-            : const Color(0xFFF1F1F1),
+            ? AppColors.darkBackground
+            : AppColors.background,
         elevation: 0,
         leadingWidth: 123,
         leading: Padding(
@@ -522,9 +357,10 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                       style: GoogleFonts.dmSans(
                                         fontSize: 24,
                                         fontWeight: FontWeight.w700,
-                                        color: theme.brightness == Brightness.dark
-                                            ? const Color(0xFFFFFFFF)
-                                            : const Color(0xFF3D3D3D),
+                                        color:
+                                            theme.brightness == Brightness.dark
+                                                ? const Color(0xFFFFFFFF)
+                                                : const Color(0xFF3D3D3D),
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
@@ -536,10 +372,10 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                         slide['description']!,
                                         style: GoogleFonts.dmSans(
                                           fontSize: 16,
-                                          color:
-                                              theme.brightness == Brightness.dark
-                                                  ? const Color(0xFF7B7B80)
-                                                  : const Color(0xFF616161),
+                                          color: theme.brightness ==
+                                                  Brightness.dark
+                                              ? const Color(0xFF7B7B80)
+                                              : const Color(0xFF616161),
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -590,14 +426,14 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  Flexible(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-                        child: _buildAuthForm(),
-                      ),
-                    ),
-                  ),
+                  // Flexible(
+                  //   child: SingleChildScrollView(
+                  //     child: Padding(
+                  //       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+                  //       child: _buildAuthForm(),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),

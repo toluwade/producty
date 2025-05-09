@@ -56,3 +56,11 @@ class CustomToast {
     );
   }
 }
+
+void showToast(
+  String message,
+  BuildContext context, {
+  bool isError = false,
+}) {
+  CustomToast.show(context, message, isError: isError);
+}

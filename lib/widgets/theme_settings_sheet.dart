@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:provider/provider.dart';
 
+import '../config/theme_provider.dart';
 import 'custom_bottom_sheet.dart';
 
-class ThemeSettingsSheet extends StatelessWidget {
+class ThemeSettingsSheet extends ConsumerWidget {
   const ThemeSettingsSheet({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeMode = ref.watch(themeNotifierProvider);
+    final themeNotifier = ref.read(themeNotifierProvider.notifier);
 
     return CustomBottomSheet(
       title: 'Theme Settings',
@@ -22,24 +24,24 @@ class ThemeSettingsSheet extends StatelessWidget {
             context,
             'System',
             Iconsax.mobile,
-            themeProvider.themeMode == ThemeMode.system,
-            () => themeProvider.setThemeMode(ThemeMode.system),
+            themeMode == ThemeMode.system,
+            () => themeNotifier.setThemeMode(ThemeMode.system),
             isDarkMode,
           ),
           _buildThemeOption(
             context,
             'Light',
             Iconsax.sun_1,
-            themeProvider.themeMode == ThemeMode.light,
-            () => themeProvider.setThemeMode(ThemeMode.light),
+            themeMode == ThemeMode.light,
+            () => themeNotifier.setThemeMode(ThemeMode.light),
             isDarkMode,
           ),
           _buildThemeOption(
             context,
             'Dark',
             Iconsax.moon,
-            themeProvider.themeMode == ThemeMode.dark,
-            () => themeProvider.setThemeMode(ThemeMode.dark),
+            themeMode == ThemeMode.dark,
+            () => themeNotifier.setThemeMode(ThemeMode.dark),
             isDarkMode,
           ),
         ],
@@ -67,7 +69,7 @@ class ThemeSettingsSheet extends StatelessWidget {
         margin: EdgeInsets.only(bottom: 8.h),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFFACF75F).withOpacity(0.15)
+              ? const Color(0xFFACF75F).withValues(alpha: 0.15)
               : (isDarkMode ? Colors.transparent : const Color(0xFFF3F3F3)),
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
