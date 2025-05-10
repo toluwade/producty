@@ -22,8 +22,8 @@ class ErrorStrings {
   // static const ERROR_READING_MESSAGE = 'Reading was not successful';
 
   //Authentication Error Strings
-  static const SEND_OTP_ERROR = 'Send Otp Error';
-  static const VERIFY_OTP_ERROR = 'Verify Otp Error';
+  static const SEND_OTP_ERROR = 'Send OTP Error';
+  static const VERIFY_OTP_ERROR = 'Verify OTP Error';
   // static const LOG_OUT_ERROR = 'Log-Out Error';
   // static const REGISTER_ERROR = 'Registration Error';
   // static const RESET_PASSWORD_ERROR = 'Reset Password Error';

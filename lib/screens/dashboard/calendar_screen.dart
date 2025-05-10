@@ -1,23 +1,24 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
+@RoutePage()
 class CalendarScreen extends StatelessWidget {
   const CalendarScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.grey[900] : const Color(0xFFF9F9F9),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Iconsax.arrow_left, 
-            color: isDarkMode ? Colors.white : Colors.black
-          ),
+          icon: Icon(Iconsax.arrow_left,
+              color: isDarkMode ? Colors.white : Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(

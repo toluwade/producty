@@ -53,7 +53,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
     return await sR.tryRemoteAndCatch(
       call: _authRemoteDataSource.verifyOtp(dto),
-      errorTitle: ErrorStrings.SEND_OTP_ERROR,
+      errorTitle: ErrorStrings.VERIFY_OTP_ERROR,
     );
   }
 }

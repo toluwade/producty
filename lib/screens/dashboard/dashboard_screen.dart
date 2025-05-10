@@ -1,19 +1,19 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:provider/provider.dart';
-import '../../providers/todo_provider.dart';
-import '../../widgets/todo_list_item.dart';
-import '../../widgets/week_view.dart';
-import '../../widgets/daily_routine_widget.dart';
-import '../../widgets/calendar_bottom_sheet.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../widgets/custom_toast.dart';
-import '../../widgets/week_stripe.dart';
-import '../../providers/daily_routine_provider.dart';
-import '../../widgets/coming_soon_bottom_sheet.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/daily_routine_provider.dart';
+import '../../providers/todo_provider.dart';
+import '../../widgets/calendar_bottom_sheet.dart';
+import '../../widgets/coming_soon_bottom_sheet.dart';
+import '../../widgets/custom_toast.dart';
+import '../../widgets/daily_routine_widget.dart';
+import '../../widgets/week_stripe.dart';
+
+@RoutePage()
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 

@@ -1,6 +1,10 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:producty/config/router/app_router.dart';
+import 'package:producty/config/router/app_router.gr.dart';
 
+@RoutePage()
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -8,7 +12,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
@@ -48,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void _navigateToAuth() {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/auth');
+      Nav.replace(context, const AuthenticationRoute());
     });
   }
 
@@ -62,12 +67,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final size = MediaQuery.of(context).size;
-    
+
     // Calculate responsive width (55% of screen width)
     final logoWidth = size.width * 0.55;
     // Calculate height maintaining aspect ratio
     final logoHeight = logoWidth / _aspectRatio;
-    
+
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
       body: AnimatedBuilder(
@@ -79,7 +84,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               child: ScaleTransition(
                 scale: _scaleAnimation,
                 child: SvgPicture.asset(
-                  isDarkMode ? 'assets/images/darkLogo.svg' : 'assets/images/lightLogo.svg',
+                  isDarkMode
+                      ? 'assets/images/darkLogo.svg'
+                      : 'assets/images/lightLogo.svg',
                   width: logoWidth,
                   height: logoHeight,
                 ),

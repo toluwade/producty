@@ -53,4 +53,18 @@ class AuthSession {
   static String _statusToString(AuthStatus? status) {
     return status == AuthStatus.newUser ? 'new' : 'existing';
   }
+
+  AuthSession copyWith({
+    String? accessToken,
+    String? refreshToken,
+    User? user,
+    AuthStatus? status,
+  }) {
+    return AuthSession(
+      accessToken: accessToken ?? this.accessToken,
+      refreshToken: refreshToken ?? this.refreshToken,
+      user: user ?? this.user,
+      status: status ?? this.status,
+    );
+  }
 }

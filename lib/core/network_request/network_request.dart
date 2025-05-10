@@ -4,6 +4,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:producty/core/api/endpoints.dart';
+
+import '../../feature/auth/application/auth_manager.dart';
 
 final networkRequestProvider =
     Provider<NetworkRequest>((ref) => NetworkRequestImpl());
@@ -49,6 +52,7 @@ class NetworkRequestImpl implements NetworkRequest {
             connectTimeout: const Duration(seconds: 60),
             receiveTimeout: const Duration(seconds: 60),
             sendTimeout: const Duration(seconds: 60),
+            validateStatus: (s) => s != null && s < 500,
           ),
         ) {
     if (kDebugMode) {
@@ -65,24 +69,53 @@ class NetworkRequestImpl implements NetworkRequest {
       );
     }
 
-    // 2. 401 interceptor
     _dio.interceptors.add(
       InterceptorsWrapper(
-        onError: (error, handler) {
+        onError: (error, handler) async {
           final statusCode = error.response?.statusCode;
 
-          // if (statusCode == 401) {
-          //   // Clear auth state
-          //   AuthManager.instance.clearAuthenticatedUser();
-          //
-          //   // Navigate to login (replace with your own navigation logic)
-          //   navigatorKey.currentState?.pushAndRemoveUntil(
-          //     MaterialPageRoute(builder: (_) => const LoginScreen()),
-          //     (_) => false,
-          //   );
-          // }
+          if (statusCode == 401) {
+            try {
+              final refreshToken = AuthManager.instance.refreshToken;
 
-          return handler.next(error); // continue the error flow
+              if (refreshToken == null) {
+                throw Exception('No refresh token available');
+              }
+
+              final response = await _dio.post(
+                Endpoints.getRefreshToken,
+                data: {
+                  'refreshToken': refreshToken,
+                },
+              );
+
+              final newAccessToken = response.data['accessToken'];
+
+              await AuthManager.instance.saveAccessToken(newAccessToken);
+
+              // Retry the original request with the new access token
+              final options = error.requestOptions;
+              options.headers['Authorization'] = 'Bearer $newAccessToken';
+
+              final clonedRequest = await _dio.request(
+                options.path,
+                options: Options(
+                  method: options.method,
+                  headers: options.headers,
+                ),
+                data: options.data,
+                queryParameters: options.queryParameters,
+              );
+
+              return handler.resolve(clonedRequest);
+            } catch (e) {
+              await AuthManager.instance.clearAuthenticatedUser();
+
+              return handler.next(error);
+            }
+          }
+
+          return handler.next(error);
         },
       ),
     );

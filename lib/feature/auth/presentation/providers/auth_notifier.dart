@@ -14,13 +14,24 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
         super(const AuthInitial());
 
   Future<void> sendOtp(RequestOtpDto dto) async {
-    state = const AuthLoading();
+    state = const OtpSendloading();
 
     final result = await _authRepository.requestOtp(dto);
 
     result.fold(
-      (l) => state = AuthFailure(l),
+      (l) => state = OtpSendFailure(l),
       (r) => state = OtpSentSuccess(r),
+    );
+  }
+
+  Future<void> resendOtp(RequestOtpDto dto) async {
+    state = const ResendOtpLoading();
+
+    final result = await _authRepository.requestOtp(dto);
+
+    result.fold(
+      (l) => state = ResendOtpFailure(l),
+      (r) => state = ResendOtpSuccess(r),
     );
   }
 
@@ -41,3 +52,8 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 
 // ... other auth flows like Google Sign-In
 }
+
+final authStateNotifierProvider =
+    StateNotifierProvider.autoDispose<AuthStateNotifier, AuthState>(
+  (ref) => AuthStateNotifier(ref),
+);

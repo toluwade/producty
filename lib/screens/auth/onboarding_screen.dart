@@ -1,12 +1,14 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:lottie/lottie.dart';
-import '../../widgets/custom_text_field.dart';
-import '../../widgets/custom_button.dart';
-import '../../widgets/custom_toast.dart';
-import '../../../widgets/country_picker.dart';
 
+import '../../../widgets/country_picker.dart';
+import '../../common/components/index.dart';
+import '../../widgets/custom_toast.dart';
+
+@RoutePage()
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -149,7 +151,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                CustomTextField(
+                AppTextField(
                   controller: _nameController,
                   placeholder: 'Enter your full name',
                   icon: Iconsax.user,
@@ -163,7 +165,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                CustomTextField(
+                AppTextField(
                   controller: TextEditingController(
                     text: _selectedCountry != null
                         ? '${_selectedCountry!.flag} ${_selectedCountry!.name}'
@@ -174,7 +176,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   onTap: _selectCountry,
                 ),
                 const SizedBox(height: 16),
-                CustomTextField(
+                AppTextField(
                   controller: _phoneController,
                   icon: Iconsax.call,
                   placeholder: 'Enter your phone number',
@@ -244,7 +246,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                CustomButton(
+                AppButton(
                   onPressed: _handleSubmit,
                   text: 'Complete Profile',
                   color: const Color(0xFF3D3D3D),

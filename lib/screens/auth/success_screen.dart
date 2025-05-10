@@ -1,14 +1,17 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../config/router/app_router.dart';
+import '../../config/router/app_router.gr.dart';
+
+@RoutePage()
 class SuccessScreen extends StatelessWidget {
   final bool isExisting;
-  final String? email;
-  
+
   const SuccessScreen({
     super.key,
     required this.isExisting,
-    this.email,
   });
 
   @override
@@ -44,7 +47,9 @@ class SuccessScreen extends StatelessWidget {
                     ? 'Great to see you again! Your workspace is ready.'
                     : 'Your account has been created successfully.',
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  color: isDark ? const Color(0xFF7B7B80) : const Color(0xFF616161),
+                  color: isDark
+                      ? const Color(0xFF7B7B80)
+                      : const Color(0xFF616161),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -53,12 +58,14 @@ class SuccessScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigate to appropriate screen based on user type
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      isExisting ? '/dashboard' : '/onboarding',
-                      (route) => false,
-                    );
+                    if (isExisting) {
+                      Nav.replaceAll(context, [const DashboardRoute()]);
+                    } else {
+                      Nav.replaceAll(context, [
+                        const AuthenticationRoute(),
+                        const OnboardingRoute(),
+                      ]);
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF3D3D3D),

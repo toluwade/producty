@@ -43,4 +43,13 @@ class AuthManager {
       return event;
     });
   }
+
+  Future<void> saveAccessToken(String accessToken) async {
+    if (_session == null) return;
+
+    _session = _session!.copyWith(accessToken: accessToken);
+    await _localSource.saveAuthSession(_session!);
+  }
+
+  String? get refreshToken => _session?.refreshToken;
 }

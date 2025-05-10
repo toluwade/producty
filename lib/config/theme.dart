@@ -87,8 +87,10 @@ class AppTheme {
         : AppColors.background;
   }
 
-  static Color surface(BuildContext context) {
+  static Color surface(BuildContext context, {bool invert = false}) {
     final brightness = Theme.of(context).brightness;
-    return brightness == Brightness.dark ? AppColors.light : AppColors.dark;
+    final isDark = brightness == Brightness.dark;
+
+    return (isDark ^ invert) ? AppColors.light : AppColors.dark;
   }
 }

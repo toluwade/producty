@@ -1,17 +1,18 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../common/components/index.dart';
 import '../../widgets/custom_bottom_sheet.dart';
 import '../../widgets/custom_checkbox.dart';
-import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_toast.dart';
 import '../../widgets/theme_settings_sheet.dart';
 import '../../widgets/week_stripe.dart';
-import '../auth/auth_screen.dart';
 
+@RoutePage()
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -26,11 +27,11 @@ class ProfileScreen extends StatelessWidget {
     await prefs.setBool('onboarding_complete', false);
     if (!context.mounted) return;
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const AuthScreen()),
-      (route) => false,
-    );
+    // Navigator.pushAndRemoveUntil(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => const AuthScreen()),
+    //   (route) => false,
+    // );
   }
 
   @override
@@ -458,13 +459,13 @@ class ProfileScreen extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CustomTextField(
+          AppTextField(
             controller: nameController,
             placeholder: 'Full Name',
             icon: Iconsax.user_edit,
           ),
           SizedBox(height: 16.h),
-          CustomTextField(
+          AppTextField(
             controller: emailController,
             placeholder: 'Email Address',
             icon: Iconsax.direct_right,

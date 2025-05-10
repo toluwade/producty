@@ -11,4 +11,6 @@ class Endpoints {
   static const verifyOtp = '$_base/auth/verify-otp';
 
   static const googleSignIn = '$_base/auth/google-signin';
+
+  static const getRefreshToken = '$_base/auth/refresh-token';
 }

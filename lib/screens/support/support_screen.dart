@@ -1,14 +1,15 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
+import '../../common/components/index.dart';
 import '../../utils/haptics.dart';
-import '../../widgets/custom_text_field.dart';
-import '../../widgets/custom_button.dart';
-import '../../widgets/custom_toast.dart';
 import '../../widgets/custom_bottom_sheet.dart';
+import '../../widgets/custom_toast.dart';
 
+@RoutePage()
 class SupportScreen extends StatefulWidget {
   const SupportScreen({super.key});
 
@@ -238,7 +239,7 @@ class _SupportScreenState extends State<SupportScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            CustomTextField(
+            AppTextField(
               controller: _nameController,
               placeholder: 'Enter your name',
               icon: Iconsax.user,
@@ -252,7 +253,7 @@ class _SupportScreenState extends State<SupportScreen> {
               },
             ),
             const SizedBox(height: 16),
-            CustomTextField(
+            AppTextField(
               controller: _emailController,
               placeholder: 'Enter your email',
               icon: Iconsax.sms,
@@ -292,7 +293,7 @@ class _SupportScreenState extends State<SupportScreen> {
                     prefixIcon: Icon(
                       Iconsax.message_question,
                       color: theme.brightness == Brightness.dark
-                          ? (_isIssueTypeFocused 
+                          ? (_isIssueTypeFocused
                               ? const Color(0xFFFFFFFF)
                               : const Color(0xFF7B7B80))
                           : const Color(0xFF3D3D3D),
@@ -326,7 +327,7 @@ class _SupportScreenState extends State<SupportScreen> {
                         FontAwesomeIcons.chevronDown,
                         size: 16,
                         color: theme.brightness == Brightness.dark
-                            ? (_isIssueTypeFocused 
+                            ? (_isIssueTypeFocused
                                 ? const Color(0xFFFFFFFF)
                                 : const Color(0xFF7B7B80))
                             : const Color(0xFF3D3D3D),
@@ -348,7 +349,7 @@ class _SupportScreenState extends State<SupportScreen> {
                 ),
               ),
             const SizedBox(height: 16),
-            CustomTextField(
+            AppTextField(
               controller: _messageController,
               placeholder: 'Enter your message',
               icon: Iconsax.message,
@@ -363,7 +364,7 @@ class _SupportScreenState extends State<SupportScreen> {
               },
             ),
             const SizedBox(height: 20),
-            CustomButton(
+            AppButton(
               onPressed: _handleSubmit,
               text: _isLoading ? 'Sending...' : 'Submit',
               isLoading: _isLoading,

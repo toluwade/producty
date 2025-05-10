@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:producty/config/theme.dart';
-import 'package:producty/feature/auth/presentation/screens/auth_screen.dart';
 
+import 'config/router/app_router.dart';
 import 'config/theme_provider.dart';
-import 'screens/auth/onboarding_screen.dart';
-import 'screens/auth/otp_screen.dart';
-import 'screens/auth/success_screen.dart';
-import 'screens/dashboard/calendar_screen.dart';
-import 'screens/dashboard/dashboard_screen.dart';
-import 'screens/dashboard/profile_screen.dart';
-import 'screens/splash/splash_screen.dart';
-import 'screens/support/support_screen.dart';
+import 'feature/auth/data/model/auth_session_adapter.dart';
+import 'feature/auth/data/model/user_adapter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,41 +16,68 @@ void main() async {
   // Enable edge-to-edge
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
-  SystemChrome.setSystemUIOverlayStyle(
-    AppTheme.overlayStyle,
-  );
+  SystemChrome.setSystemUIOverlayStyle(AppTheme.overlayStyle);
+
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   await Hive.initFlutter();
 
+  Hive
+    ..registerAdapter(AuthSessionAdapter())
+    ..registerAdapter(UserAdapter())
+    ..registerAdapter(UsagePurposeAdapter())
+    ..registerAdapter(LoginProviderAdapter());
+
   runApp(
-    const ProviderScope(
+    ProviderScope(
       child: MyApp(),
     ),
   );
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final appRouter = AppRouter();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Access the theme mode from the themeProvider
     final themeMode = ref.watch(themeNotifierProvider);
 
-    return MaterialApp(
-      title: 'Producty',
-      debugShowCheckedModeBanner: false,
-      themeMode: themeMode,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      onGenerateRoute: (settings) {
+    return ScreenUtilInit(
+      designSize: const Size(375, 812),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      child: MaterialApp.router(
+        routerConfig: appRouter.config(),
+        title: 'Producty',
+        debugShowCheckedModeBanner: false,
+        themeMode: themeMode,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+      ),
+    );
+  }
+}
+
+// bamideledavid.femi@gmail.com
+
+/*
+ ChangeNotifierProvider(create: (_) => TodoProvider()),
+          ChangeNotifierProvider(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider(create: (_) => DailyRoutineProvider()),
+ */
+/*
+ onGenerateRoute: (settings) {
         if (settings.name == '/otp') {
           final args = settings.arguments as Map<String, dynamic>?;
           if (args != null) {
             return MaterialPageRoute(
               builder: (context) => OTPScreen(
                 email: args['email'] as String,
-                isExisting: args['isExisting'] as bool,
               ),
             );
           }
@@ -80,12 +102,4 @@ class MyApp extends ConsumerWidget {
         '/calendar': (context) => const CalendarScreen(),
         '/support': (context) => const SupportScreen(),
       },
-    );
-  }
-}
-
-/*
- ChangeNotifierProvider(create: (_) => TodoProvider()),
-          ChangeNotifierProvider(create: (_) => ThemeProvider()),
-          ChangeNotifierProvider(create: (_) => DailyRoutineProvider()),
  */

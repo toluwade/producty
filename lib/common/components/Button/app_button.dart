@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:producty/common/components/Loader/loading_indicator.dart';
 
-import '../core/constants/colors.dart';
+import '../../../core/constants/colors.dart';
 
-class CustomButton extends StatelessWidget {
+class AppButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String text;
   final bool isLoading;
@@ -12,7 +13,7 @@ class CustomButton extends StatelessWidget {
   final double? width;
   final double? height;
 
-  const CustomButton({
+  const AppButton({
     super.key,
     required this.onPressed,
     required this.text,
@@ -33,26 +34,31 @@ class CustomButton extends StatelessWidget {
 
     return SizedBox(
       width: width ?? double.infinity,
-      height: height ?? 56,
+      height: height ?? 48,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: buttonColor,
-          foregroundColor: textColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) {
+              return buttonColor.withValues(alpha: 0.85);
+            }
+            return buttonColor;
+          }),
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) {
+              return textColor;
+            }
+            return textColor;
+          }),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
-          elevation: 0,
+          elevation: WidgetStateProperty.all(0),
         ),
         child: isLoading
-            ? SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(textColor),
-                ),
-              )
+            ? const LoadingIndicator(size: 30)
             : Text(
                 text,
                 style: GoogleFonts.dmSans(

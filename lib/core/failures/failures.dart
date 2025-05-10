@@ -5,6 +5,9 @@ abstract class Failure {
   const Failure(this.title, this.message);
 
   List<Object> get props => [title, message];
+
+  @override
+  String toString() => 'Failure(title: $title, message: $message)';
 }
 
 class NoFailure extends Failure {

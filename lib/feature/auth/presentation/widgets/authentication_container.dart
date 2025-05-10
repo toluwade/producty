@@ -11,7 +11,6 @@ class AuthenticationContainer extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeOut,
-      width: double.infinity,
       margin: EdgeInsets.fromLTRB(
         20,
         0,

@@ -6,16 +6,6 @@ import 'package:dartz/dartz.dart';
 import '../failures/failures.dart';
 import '../network_info/network_info.dart';
 
-/// A utility to wrap remote and local data source calls with consistent error handling.
-///
-/// Example usage:
-/// ```dart
-/// final runner = ServiceRunner<Failure, bool>(networkInfo);
-/// return runner.tryRemoteAndCatch(
-///   call: remoteDataSource.logout(user: user),
-///   errorTitle: ErrorStrings.LOG_OUT_ERROR,
-/// );
-/// ```
 class ServiceRunner<F extends Failure, T> {
   final NetworkInfo networkInfo;
 
