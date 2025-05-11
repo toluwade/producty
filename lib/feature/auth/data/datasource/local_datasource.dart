@@ -1,3 +1,4 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:producty/core/constants/hive_constants.dart';
 
@@ -12,24 +13,46 @@ abstract class AuthLocalDataSource {
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
-  static const String _authSessionBox = HiveConstants.authSessionBox;
   static const String _userBox = HiveConstants.userBox;
-  static const String _sessionKey = HiveConstants.sessionKey;
   static const String _userKey = HiveConstants.userKey;
+
+  static const _accessTokenKey = SecureStorage.accessTokenKey;
+  static const _refreshTokenKey = SecureStorage.refreshTokenKey;
+
+  final _secureStorage = const FlutterSecureStorage();
 
   Future<Box<T>> _openBox<T>(String boxName) async =>
       await Hive.openBox<T>(boxName);
 
   @override
   Future<AuthSession?> getAuthSession() async {
-    final box = await _openBox<AuthSession>(_authSessionBox);
-    return box.get(_sessionKey);
+    final accessToken = await _secureStorage.read(key: _accessTokenKey);
+    final refreshToken = await _secureStorage.read(key: _refreshTokenKey);
+
+    if (accessToken == null || refreshToken == null) return null;
+
+    final userBox = await _openBox<User>(_userBox);
+    final user = userBox.get(_userKey);
+
+    if (user == null) return null;
+
+    return AuthSession(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      user: user,
+    );
   }
 
   @override
   Future<void> saveAuthSession(AuthSession session) async {
-    final sessionBox = await _openBox<AuthSession>(_authSessionBox);
-    await sessionBox.put(_sessionKey, session);
+    await _secureStorage.write(
+      key: _accessTokenKey,
+      value: session.accessToken,
+    );
+    await _secureStorage.write(
+      key: _refreshTokenKey,
+      value: session.refreshToken,
+    );
 
     final userBox = await _openBox<User?>(_userBox);
     await userBox.put(_userKey, session.user);
@@ -37,8 +60,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> clearAuthSession() async {
-    final sessionBox = await _openBox<AuthSession>(_authSessionBox);
-    await sessionBox.delete(_sessionKey);
+    await _secureStorage.deleteAll();
 
     final userBox = await _openBox<User>(_userBox);
     await userBox.delete(_userKey);
@@ -46,8 +68,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Stream<User?> streamUserStatus() async* {
-    final box = await _openBox<User>(_userBox);
-    yield box.get(_userKey);
-    yield* box.watch(key: _userKey).map((event) => event.value as User?);
+    final userBox = await _openBox<User>(_userBox);
+    yield userBox.get(_userKey);
+    yield* userBox.watch(key: _userKey).map((event) => event.value as User?);
   }
 }

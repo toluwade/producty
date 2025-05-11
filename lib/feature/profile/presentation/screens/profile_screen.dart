@@ -4,12 +4,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../common/components/index.dart';
-import '../../widgets/custom_bottom_sheet.dart';
-import '../../widgets/custom_checkbox.dart';
-import '../../widgets/custom_toast.dart';
-import '../../widgets/theme_settings_sheet.dart';
-import '../../widgets/week_stripe.dart';
+import '../../../../common/components/index.dart';
+import '../../../../widgets/custom_bottom_sheet.dart';
+import '../../../../widgets/custom_checkbox.dart';
+import '../../../../widgets/custom_toast.dart';
+import '../../../../widgets/theme_settings_sheet.dart';
+import '../../../../widgets/week_stripe.dart';
 
 @RoutePage()
 class ProfileScreen extends StatelessWidget {

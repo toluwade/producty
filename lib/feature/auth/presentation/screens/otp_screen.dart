@@ -12,12 +12,12 @@ import 'package:producty/feature/auth/data/model/auth_session.dart';
 import 'package:producty/feature/auth/presentation/providers/auth_notifier.dart';
 import 'package:producty/feature/auth/presentation/providers/auth_state.dart';
 
-import '../../common/components/index.dart';
-import '../../config/router/app_router.dart';
-import '../../feature/auth/data/dto/request_otp_dto.dart';
-import '../../feature/auth/data/dto/verify_otp_dto.dart';
-import '../../feature/auth/presentation/widgets/otp_pin_field.dart';
-import '../../widgets/custom_toast.dart';
+import '../../../../common/components/index.dart';
+import '../../../../config/router/app_router.dart';
+import '../../../../widgets/custom_toast.dart';
+import '../../data/dto/request_otp_dto.dart';
+import '../../data/dto/verify_otp_dto.dart';
+import '../widgets/otp_pin_field.dart';
 
 @RoutePage()
 class OTPScreen extends HookConsumerWidget {
@@ -68,11 +68,12 @@ class OTPScreen extends HookConsumerWidget {
       (prev, next) {
         if (next is AuthFailure || next is ResendOtpFailure) {
           final failure = (next as dynamic).failure;
+
           showToast(failure.message, context, isError: true);
         } else if (next is AuthSuccess) {
           final isExisting = next.session.status == AuthStatus.existing;
+
           Nav.replace(context, SuccessRoute(isExisting: isExisting));
-          SuccessRoute(isExisting: isExisting);
         }
       },
     );

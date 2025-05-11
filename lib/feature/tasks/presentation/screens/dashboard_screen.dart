@@ -5,13 +5,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:producty/config/router/app_router.gr.dart';
 import 'package:provider/provider.dart';
 
-import '../../config/router/app_router.dart';
-import '../../feature/tasks/presentation/widgets/calendar_bottom_sheet.dart';
-import '../../feature/tasks/presentation/widgets/coming_soon_bottom_sheet.dart';
-import '../../feature/tasks/presentation/widgets/dashboard_app_bar.dart';
-import '../../providers/todo_provider.dart';
-import '../../widgets/custom_toast.dart';
-import '../../widgets/week_stripe.dart';
+import '../../../../config/router/app_router.dart';
+import '../../../../providers/todo_provider.dart';
+import '../../../../widgets/custom_toast.dart';
+import '../../../../widgets/week_stripe.dart';
+import '../widgets/calendar_bottom_sheet.dart';
+import '../widgets/coming_soon_bottom_sheet.dart';
+import '../widgets/dashboard_app_bar.dart';
 
 @RoutePage()
 class DashboardScreen extends StatefulWidget {

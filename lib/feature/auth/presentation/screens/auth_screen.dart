@@ -17,7 +17,7 @@ import 'package:producty/widgets/custom_toast.dart';
 
 import '../../../../common/components/index.dart';
 import '../../../../config/router/app_router.dart';
-import '../../../../config/theme.dart';
+import '../../../../config/theme/theme.dart';
 import '../../../../core/constants/assets.dart';
 import '../../../../core/constants/colors.dart';
 import '../../data/dto/request_otp_dto.dart';

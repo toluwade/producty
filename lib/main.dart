@@ -3,10 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:producty/config/theme.dart';
+import 'package:producty/config/theme/theme.dart';
+import 'package:producty/feature/auth/application/auth_manager.dart';
 
 import 'config/router/app_router.dart';
-import 'config/theme_provider.dart';
+import 'config/theme/theme_provider.dart';
 import 'feature/auth/data/model/auth_session_adapter.dart';
 import 'feature/auth/data/model/user_adapter.dart';
 
@@ -30,6 +31,8 @@ void main() async {
     ..registerAdapter(UserAdapter())
     ..registerAdapter(UsagePurposeAdapter())
     ..registerAdapter(LoginProviderAdapter());
+
+  await AuthManager.instance.init();
 
   runApp(
     ProviderScope(

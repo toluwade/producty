@@ -1,6 +1,5 @@
 class HiveConstants {
   // Box Names
-  static const String authSessionBox = 'auth_session_box';
   static const String userBox = 'user_box';
   static const String taskBox = 'task_box';
   static const String settingsBox = 'settings';
@@ -18,4 +17,9 @@ class HiveConstants {
   static const int loginProviderHiveId = 4;
 
 // Add more as needed
+}
+
+class SecureStorage {
+  static const String accessTokenKey = 'access_token';
+  static const String refreshTokenKey = 'refresh_token';
 }

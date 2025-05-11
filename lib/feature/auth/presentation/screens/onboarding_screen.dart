@@ -4,9 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:lottie/lottie.dart';
 
-import '../../../widgets/country_picker.dart';
-import '../../common/components/index.dart';
-import '../../widgets/custom_toast.dart';
+import '../../../../../widgets/country_picker.dart';
+import '../../../../common/components/index.dart';
+import '../../../../widgets/custom_toast.dart';
 
 @RoutePage()
 class OnboardingScreen extends StatefulWidget {

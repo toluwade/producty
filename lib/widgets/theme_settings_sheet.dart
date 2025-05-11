@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 
-import '../config/theme_provider.dart';
+import '../config/theme/theme_provider.dart';
 import 'custom_bottom_sheet.dart';
 
 class ThemeSettingsSheet extends ConsumerWidget {

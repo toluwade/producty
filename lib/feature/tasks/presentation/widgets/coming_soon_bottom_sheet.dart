@@ -4,17 +4,11 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:lottie/lottie.dart';
 
 class ComingSoonBottomSheet extends StatelessWidget {
-  final String title;
-  final String description;
-  final IconData icon;
   final VoidCallback onClose;
   final Color accentColor;
 
   const ComingSoonBottomSheet({
     super.key,
-    required this.title,
-    required this.description,
-    required this.icon,
     required this.onClose,
     this.accentColor = const Color(0xFFB4F481),
   });
@@ -91,13 +85,13 @@ class ComingSoonBottomSheet extends StatelessWidget {
                             WidgetSpan(
                               alignment: PlaceholderAlignment.middle,
                               child: Container(
-                                height: 22.h,
+                                height: 26.h,
                                 padding: EdgeInsets.symmetric(horizontal: 8.w),
                                 decoration: BoxDecoration(
                                   color: isDarkMode
                                       ? Colors.grey[800]
                                       : const Color(0xFFACF75F),
-                                  borderRadius: BorderRadius.circular(20.r),
+                                  borderRadius: BorderRadius.circular(10.r),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -113,7 +107,7 @@ class ComingSoonBottomSheet extends StatelessWidget {
                                     Text(
                                       'Analytics',
                                       style: TextStyle(
-                                        fontSize: 16.sp,
+                                        fontSize: 15.sp,
                                         fontWeight: FontWeight.w500,
                                         color: isDarkMode
                                             ? Colors.white
@@ -124,7 +118,7 @@ class ComingSoonBottomSheet extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: ' is Coming Soon!',
                             ),
                           ],
@@ -150,8 +144,8 @@ class ComingSoonBottomSheet extends StatelessWidget {
                             padding: EdgeInsets.all(16.w),
                             decoration: BoxDecoration(
                               color: isDarkMode
-                                  ? Colors.grey[800]!.withOpacity(0.5)
-                                  : Colors.grey[200]!.withOpacity(0.5),
+                                  ? Colors.grey[800]!.withValues(alpha: .5)
+                                  : Colors.grey[200]!.withValues(alpha: .5),
                               borderRadius: BorderRadius.circular(20.r),
                             ),
                             child: Column(
@@ -246,20 +240,23 @@ class BulletPoint extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 18.w,
-          height: 18.w,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isDarkMode
-                ? const Color(0xFFACF75F).withOpacity(0.2)
-                : const Color(0xFFACF75F),
-          ),
-          child: Center(
-            child: Icon(
-              Icons.check_rounded,
-              size: 12.sp,
-              color: isDarkMode ? const Color(0xFFACF75F) : Colors.black,
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Container(
+            width: 18.w,
+            height: 18.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isDarkMode
+                  ? const Color(0xFFACF75F).withValues(alpha: .2)
+                  : const Color(0xFFACF75F),
+            ),
+            child: Center(
+              child: Icon(
+                Icons.check_rounded,
+                size: 12.sp,
+                color: isDarkMode ? const Color(0xFFACF75F) : Colors.black,
+              ),
             ),
           ),
         ),

@@ -7,12 +7,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
+import 'package:producty/feature/splash/presentation/screens/splash_screen.dart';
 import 'package:producty/providers/todo_provider.dart';
-import 'package:producty/screens/splash/splash_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  testWidgets('App should start with splash screen', (WidgetTester tester) async {
+  testWidgets('App should start with splash screen',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (context) => TodoProvider(),

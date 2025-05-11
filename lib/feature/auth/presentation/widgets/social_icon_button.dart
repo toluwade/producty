@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../../config/theme.dart';
+import '../../../../config/theme/theme.dart';
 import '../../../../core/constants/colors.dart';
 
 class SocialIconButton extends StatelessWidget {

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:intl/intl.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
 
-class CalendarBottomSheet extends StatefulWidget {
+class CalendarBottomSheet extends HookWidget {
   final DateTime initialSelectedDate;
   final Function(DateTime) onDateSelected;
   final String? currentMonthYear;
@@ -19,36 +20,19 @@ class CalendarBottomSheet extends StatefulWidget {
   });
 
   @override
-  CalendarBottomSheetState createState() => CalendarBottomSheetState();
-}
-
-class CalendarBottomSheetState extends State<CalendarBottomSheet> {
-  late DateTime _selectedDay;
-  late DateTime _focusedDay;
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  final bool _shouldScrollToSelectedDay = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedDay = widget.initialSelectedDate;
-    _focusedDay = widget.initialSelectedDate;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final selectedDay = useState(initialSelectedDate);
+    final focusedDay = useState(initialSelectedDate);
+    final calendarFormat = useState(CalendarFormat.month);
+
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+      padding: EdgeInsets.symmetric(horizontal: 4.w),
       decoration: BoxDecoration(
         color: isDarkMode ? Colors.grey[900] : Colors.white,
-        borderRadius: BorderRadius.circular(35.r),
+        borderRadius: BorderRadius.circular(36.r),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -68,28 +52,20 @@ class CalendarBottomSheetState extends State<CalendarBottomSheet> {
           TableCalendar(
             firstDay: DateTime.utc(2020, 1, 1),
             lastDay: DateTime.utc(2030, 12, 31),
-            focusedDay: _focusedDay,
-            calendarFormat: _calendarFormat,
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay;
-              });
+            focusedDay: focusedDay.value,
+            calendarFormat: calendarFormat.value,
+            selectedDayPredicate: (day) => isSameDay(selectedDay.value, day),
+            onDaySelected: (newSelectedDay, newFocusedDay) {
+              selectedDay.value = newSelectedDay;
+              focusedDay.value = newFocusedDay;
             },
             onFormatChanged: (format) {
-              if (_calendarFormat != format) {
-                setState(() {
-                  _calendarFormat = format;
-                });
+              if (calendarFormat.value != format) {
+                calendarFormat.value = format;
               }
             },
-            onPageChanged: (focusedDay) {
-              setState(() {
-                _focusedDay = focusedDay;
-              });
+            onPageChanged: (newFocusedDay) {
+              focusedDay.value = newFocusedDay;
             },
             headerStyle: HeaderStyle(
               formatButtonVisible: false,
@@ -109,7 +85,6 @@ class CalendarBottomSheetState extends State<CalendarBottomSheet> {
               ),
             ),
             calendarStyle: CalendarStyle(
-              // Today's date style
               todayDecoration: BoxDecoration(
                 color:
                     isDarkMode ? const Color(0xFFACF75F) : Colors.transparent,
@@ -125,8 +100,6 @@ class CalendarBottomSheetState extends State<CalendarBottomSheet> {
                 color: isDarkMode ? const Color(0xFF3D3D3D) : Colors.black,
                 fontWeight: FontWeight.bold,
               ),
-
-              // Selected date style
               selectedDecoration: BoxDecoration(
                 color: isDarkMode
                     ? const Color(0xFFACF75F)
@@ -137,8 +110,6 @@ class CalendarBottomSheetState extends State<CalendarBottomSheet> {
                 color: isDarkMode ? const Color(0xFF3D3D3D) : Colors.white,
                 fontWeight: FontWeight.bold,
               ),
-
-              // Default text styles
               defaultTextStyle: TextStyle(
                 color: isDarkMode ? Colors.white : Colors.black,
               ),
@@ -148,18 +119,10 @@ class CalendarBottomSheetState extends State<CalendarBottomSheet> {
               outsideTextStyle: TextStyle(
                 color: isDarkMode ? Colors.white24 : Colors.black26,
               ),
-
-              // Disabled dates
               disabledTextStyle: TextStyle(
                 color: isDarkMode ? Colors.white24 : Colors.black26,
               ),
-
-              // Weekend dates
-              weekendDecoration: BoxDecoration(
-                shape: BoxShape.circle,
-              ),
-
-              // Cell margins
+              weekendDecoration: const BoxDecoration(shape: BoxShape.circle),
               cellMargin: EdgeInsets.all(4.w),
               cellPadding: EdgeInsets.zero,
             ),
@@ -180,7 +143,7 @@ class CalendarBottomSheetState extends State<CalendarBottomSheet> {
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
             child: ElevatedButton(
               onPressed: () {
-                widget.onDateSelected(_selectedDay);
+                onDateSelected(selectedDay.value);
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
@@ -195,7 +158,7 @@ class CalendarBottomSheetState extends State<CalendarBottomSheet> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Go to ${DateFormat('MMMM d').format(_selectedDay)}',
+                    'Go to ${DateFormat('MMMM d').format(selectedDay.value)}',
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
@@ -212,7 +175,7 @@ class CalendarBottomSheetState extends State<CalendarBottomSheet> {
               ),
             ),
           ),
-          SizedBox(height: 20.h), // Add bottom padding
+          SizedBox(height: 20.h),
         ],
       ),
     );

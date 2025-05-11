@@ -52,4 +52,5 @@ class AuthManager {
   }
 
   String? get refreshToken => _session?.refreshToken;
+  bool get isLoggedIn => _session?.accessToken != null;
 }
