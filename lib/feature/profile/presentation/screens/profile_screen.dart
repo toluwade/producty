@@ -1,6 +1,5 @@
 import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,17 +41,6 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor:
           isDarkMode ? const Color(0xFF1C1C1E) : const Color(0xFFF1F1F1),
       appBar: AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness:
-              isDarkMode ? Brightness.light : Brightness.dark,
-          statusBarBrightness: isDarkMode ? Brightness.dark : Brightness.light,
-          systemNavigationBarColor:
-              isDarkMode ? Colors.grey[900] : const Color(0xFFF1F1F1),
-          systemNavigationBarIconBrightness:
-              isDarkMode ? Brightness.light : Brightness.dark,
-          systemNavigationBarDividerColor: Colors.transparent,
-        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leadingWidth: 100.w,
