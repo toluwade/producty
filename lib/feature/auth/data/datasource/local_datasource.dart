@@ -21,8 +21,13 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   final _secureStorage = const FlutterSecureStorage();
 
-  Future<Box<T>> _openBox<T>(String boxName) async =>
-      await Hive.openBox<T>(boxName);
+  Future<Box<T?>> _openBox<T>({String boxName = _userBox}) async {
+    if (Hive.isBoxOpen(boxName)) {
+      return Hive.box<T>(boxName);
+    } else {
+      return await Hive.openBox<T>(boxName);
+    }
+  }
 
   @override
   Future<AuthSession?> getAuthSession() async {
@@ -31,7 +36,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
     if (accessToken == null || refreshToken == null) return null;
 
-    final userBox = await _openBox<User>(_userBox);
+    final userBox = await _openBox<User>();
     final user = userBox.get(_userKey);
 
     if (user == null) return null;
@@ -54,7 +59,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       value: session.refreshToken,
     );
 
-    final userBox = await _openBox<User?>(_userBox);
+    final userBox = await _openBox<User>();
     await userBox.put(_userKey, session.user);
   }
 
@@ -62,13 +67,13 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> clearAuthSession() async {
     await _secureStorage.deleteAll();
 
-    final userBox = await _openBox<User>(_userBox);
+    final userBox = await _openBox<User>();
     await userBox.delete(_userKey);
   }
 
   @override
   Stream<User?> streamUserStatus() async* {
-    final userBox = await _openBox<User>(_userBox);
+    final userBox = await _openBox<User>();
     yield userBox.get(_userKey);
     yield* userBox.watch(key: _userKey).map((event) => event.value as User?);
   }

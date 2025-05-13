@@ -4,12 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:producty/config/theme/theme.dart';
+import 'package:producty/core/constants/hive_constants.dart';
 import 'package:producty/feature/auth/application/auth_manager.dart';
 
 import 'config/router/app_router.dart';
 import 'config/theme/theme_provider.dart';
-import 'feature/auth/data/model/auth_session_adapter.dart';
-import 'feature/auth/data/model/user_adapter.dart';
+import 'feature/auth/data/model/auth_session.dart';
+import 'feature/auth/data/model/user.dart';
+import 'feature/tasks/data/datasource/local_datasource.dart';
+import 'feature/tasks/data/model/task.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,12 +33,20 @@ void main() async {
     ..registerAdapter(AuthSessionAdapter())
     ..registerAdapter(UserAdapter())
     ..registerAdapter(UsagePurposeAdapter())
-    ..registerAdapter(LoginProviderAdapter());
+    ..registerAdapter(LoginProviderAdapter())
+    ..registerAdapter(TaskAdapter())
+    ..registerAdapter(FrequencyAdapter())
+    ..registerAdapter(ReminderAdapter());
 
   await AuthManager.instance.init();
 
+  final taskBox = await Hive.openBox<Task>(HiveConstants.taskBox);
+
   runApp(
     ProviderScope(
+      overrides: [
+        taskBoxProvider.overrideWithValue(taskBox),
+      ],
       child: MyApp(),
     ),
   );

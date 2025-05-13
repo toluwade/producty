@@ -1,16 +1,45 @@
+import 'package:producty/feature/tasks/data/model/task.dart';
+
 class Endpoints {
-  static const _base = 'http://localhost:3000';
+  static const base = 'http://localhost:3000';
 
   ////////////////////////////////////
+  // Authentication Endpoints
+  static const requestOtp = '$base/auth/request-otp';
+  static const verifyOtp = '$base/auth/verify-otp';
+  static const googleSignIn = '$base/auth/google-signin';
+  static const getRefreshToken = '$base/auth/refresh-token';
 
-  // Authentication Endpoint
+  ////////////////////////////////////
+  // Task Endpoints
+  static const tasks = '$base/tasks';
 
-  // Auth
-  static const requestOtp = '$_base/auth/request-otp';
+  static String getTasks(Filter filter) => '$tasks?filter=$filter';
 
-  static const verifyOtp = '$_base/auth/verify-otp';
+  static String getTasksInRange(
+    DateTime start,
+    DateTime end, {
+    Filter? filter,
+  }) {
+    final startStr = start.toIso8601String();
+    final endStr = end.toIso8601String();
 
-  static const googleSignIn = '$_base/auth/google-signin';
+    final base = '$tasks?start=$startStr&end=$endStr';
+    if (filter != null && filter != Filter.active) {
+      return '$base&filter=${filter.name}';
+    }
+    return base;
+  }
 
-  static const getRefreshToken = '$_base/auth/refresh-token';
+  static String createTask = tasks;
+
+  static String updateTask(String id) => '$tasks/$id';
+
+  static String toggleCompletion(String id) => '$tasks/$id/toggle-completion';
+
+  static String softDeleteTask(String id) => '$tasks/$id/soft-delete';
+
+  static String restoreTask(String id) => '$tasks/$id/restore';
+
+  static String hardDeleteTask(String id) => '$tasks/$id';
 }

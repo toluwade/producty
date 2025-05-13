@@ -1,41 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
-import '../models/daily_routine_entry.dart';
+import 'package:producty/utils/extensions/date_time.dart';
+
+import '../feature/tasks/data/model/task.dart';
 
 class TaskTile extends StatelessWidget {
-  final DailyRoutineEntry entry;
+  final Task task;
   final VoidCallback? onTap;
 
   const TaskTile({
     Key? key,
-    required this.entry,
+    required this.task,
     this.onTap,
   }) : super(key: key);
 
-  IconData _getTaskIcon() {
-    if (entry.time.contains('8:00 AM')) {
-      return Iconsax.alarm;
-    } else if (entry.time.contains('9:00 AM')) {
-      return Iconsax.coffee;
-    } else if (entry.time.contains('10:00 AM')) {
-      return Iconsax.briefcase;
-    } else {
-      return Iconsax.clock;
-    }
-  }
-
-  Color _getIconColor() {
-    if (entry.time.contains('8:00 AM')) {
-      return Colors.green;
-    } else if (entry.time.contains('9:00 AM')) {
-      return Colors.orange;
-    } else if (entry.time.contains('10:00 AM')) {
-      return Colors.blue;
-    } else {
-      return Colors.grey.shade600;
-    }
-  }
+  // IconData _getTaskIcon() {
+  //   if (task.date.contains('8:00 AM')) {
+  //     return Iconsax.alarm;
+  //   } else if (entry.time.contains('9:00 AM')) {
+  //     return Iconsax.coffee;
+  //   } else if (entry.time.contains('10:00 AM')) {
+  //     return Iconsax.briefcase;
+  //   } else {
+  //     return Iconsax.clock;
+  //   }
+  // }
+  //
+  // Color _getIconColor() {
+  //   if (entry.time.contains('8:00 AM')) {
+  //     return Colors.green;
+  //   } else if (entry.time.contains('9:00 AM')) {
+  //     return Colors.orange;
+  //   } else if (entry.time.contains('10:00 AM')) {
+  //     return Colors.blue;
+  //   } else {
+  //     return Colors.grey.shade600;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -52,25 +53,25 @@ class TaskTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Icon Container
-              Container(
-                width: 32.h,
-                height: 32.h,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _getIconColor().withOpacity(0.1),
-                  border: Border.all(
-                    color: _getIconColor(),
-                    width: 1.5.w,
-                  ),
-                ),
-                child: Center(
-                  child: Icon(
-                    _getTaskIcon(),
-                    size: 16.sp,
-                    color: _getIconColor(),
-                  ),
-                ),
-              ),
+              // Container(
+              //   width: 32.h,
+              //   height: 32.h,
+              //   decoration: BoxDecoration(
+              //     shape: BoxShape.circle,
+              //     color: _getIconColor().withOpacity(0.1),
+              //     border: Border.all(
+              //       color: _getIconColor(),
+              //       width: 1.5.w,
+              //     ),
+              //   ),
+              //   child: Center(
+              //     child: Icon(
+              //       _getTaskIcon(),
+              //       size: 16.sp,
+              //       color: _getIconColor(),
+              //     ),
+              //   ),
+              // ),
               SizedBox(width: 16.w),
 
               // Task Content
@@ -79,7 +80,7 @@ class TaskTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      entry.time,
+                      task.date.toReadableTime(),
                       style: TextStyle(
                         fontSize: 12.sp,
                         color: Colors.grey.shade600,
@@ -88,17 +89,17 @@ class TaskTile extends StatelessWidget {
                     ),
                     SizedBox(height: 4.h),
                     Text(
-                      entry.title,
+                      task.title,
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         color: isDarkMode ? Colors.white : Colors.black87,
                       ),
                     ),
-                    if (entry.description.isNotEmpty) ...[
+                    if (task.otherDetails != null) ...[
                       SizedBox(height: 2.h),
                       Text(
-                        entry.description,
+                        task.otherDetails!,
                         style: TextStyle(
                           fontSize: 13.sp,
                           color: Colors.grey.shade600,
@@ -117,16 +118,16 @@ class TaskTile extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(6.r),
                   border: Border.all(
-                    color: entry.isCompleted
+                    color: task.isCompleted
                         ? Theme.of(context).primaryColor
                         : Colors.grey.shade300,
                     width: 1.5.w,
                   ),
-                  color: entry.isCompleted
+                  color: task.isCompleted
                       ? Theme.of(context).primaryColor
                       : Colors.transparent,
                 ),
-                child: entry.isCompleted
+                child: task.isCompleted
                     ? Icon(
                         Icons.check,
                         size: 16.sp,

@@ -1,8 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/api/endpoints.dart';
-import '../../../../core/network_request/network_request.dart';
-import '../../../../core/network_retry/network_retry.dart';
+import '../../../../core/network/network.dart';
 import '../dto/google_signin_dto.dart';
 import '../dto/request_otp_dto.dart';
 import '../dto/verify_otp_dto.dart';
@@ -34,7 +33,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     final data = response.data;
 
-    if (response.statusCode == 201 || response.statusCode == 200) {
+    if (response.isSuccess) {
       return data["message"];
     } else {
       try {
@@ -57,7 +56,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     final data = response.data;
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
+    if (response.isSuccess) {
       return AuthSession.fromJson(data);
     } else {
       final errorMessage = data['message'] ?? 'OTP verification failed';
@@ -76,7 +75,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     final data = response.data;
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
+    if (response.isSuccess) {
       return AuthSession.fromJson(data);
     } else {
       final errorMessage = data['message'] ?? 'Google Sign-In failed';

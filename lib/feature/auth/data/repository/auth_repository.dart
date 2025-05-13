@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/error_strings.dart';
 import '../../../../core/failures/failures.dart';
-import '../../../../core/network_info/network_info.dart';
+import '../../../../core/network/network_info.dart';
 import '../../../../core/runner/service_runner.dart';
 import '../datasource/remote_datasource.dart';
 import '../dto/request_otp_dto.dart';
@@ -51,7 +51,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, AuthSession>> verifyOtp(VerifyOtpDto dto) async {
     ServiceRunner<Failure, AuthSession> sR = ServiceRunner(_networkInfo);
 
-    return await sR.tryRemoteAndCatch(
+    return sR.tryRemoteAndCatch(
       call: _authRemoteDataSource.verifyOtp(dto),
       errorTitle: ErrorStrings.VERIFY_OTP_ERROR,
     );

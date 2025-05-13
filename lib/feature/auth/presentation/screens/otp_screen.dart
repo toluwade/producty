@@ -35,7 +35,7 @@ class OTPScreen extends HookConsumerWidget {
     final controller = useTextEditingController();
     final isDark = theme.brightness == Brightness.dark;
     final otpCode = useState('');
-    final countdown = useState(30);
+    final countdown = useState(60);
     final errorController = useMemoized(
       () => StreamController<ErrorAnimationType>(),
     );

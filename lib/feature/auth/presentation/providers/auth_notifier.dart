@@ -18,9 +18,9 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 
     final result = await _authRepository.requestOtp(dto);
 
-    result.fold(
-      (l) => state = OtpSendFailure(l),
-      (r) => state = OtpSentSuccess(r),
+    state = result.fold(
+      (l) => OtpSendFailure(l),
+      (r) => OtpSentSuccess(r),
     );
   }
 
@@ -29,9 +29,9 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 
     final result = await _authRepository.requestOtp(dto);
 
-    result.fold(
-      (l) => state = ResendOtpFailure(l),
-      (r) => state = ResendOtpSuccess(r),
+    state = result.fold(
+      (l) => ResendOtpFailure(l),
+      (r) => ResendOtpSuccess(r),
     );
   }
 

@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:producty/config/router/app_router.gr.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../config/router/app_router.dart';
-import '../../../../providers/todo_provider.dart';
 import '../../../../widgets/custom_toast.dart';
+import '../../../../widgets/daily_routine_widget.dart';
 import '../../../../widgets/week_stripe.dart';
 import '../widgets/calendar_bottom_sheet.dart';
 import '../widgets/coming_soon_bottom_sheet.dart';
@@ -123,7 +122,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       );
 
       if (mounted) {
-        Provider.of<TodoProvider>(context, listen: false).refreshTodos();
+        // Provider.of<TodoProvider>(context, listen: false).refreshTodos();
         _showToast("You're viewing today's date.");
       }
     } catch (e) {
@@ -328,41 +327,45 @@ class _DashboardScreenState extends State<DashboardScreen>
                         selectedDate = currentDate;
                         final weekStart = _getStartOfWeek(currentDate);
                         dates = List.generate(
-                            7, (index) => weekStart.add(Duration(days: index)));
+                          7,
+                          (index) => weekStart.add(
+                            Duration(days: index),
+                          ),
+                        );
                       });
                     },
                   ),
                   SizedBox(height: 5.h),
-                  // SizedBox(
-                  //   height: dailyRoutineHeight,
-                  //   child: DailyRoutineWidget(
-                  //     selectedDate: selectedDate,
-                  //     onDateChanged: (DateTime newDate) {
-                  //       final daysDifference =
-                  //           newDate.difference(DateTime(2024, 1, 1)).inDays;
-                  //       final newPageIndex = 3650 + (daysDifference ~/ 7);
-                  //
-                  //       _pageController.animateToPage(
-                  //         newPageIndex,
-                  //         duration: const Duration(milliseconds: 300),
-                  //         curve: Curves.easeInOut,
-                  //       );
-                  //
-                  //       setState(() {
-                  //         selectedDate = newDate;
-                  //         _currentPageIndex = newPageIndex;
-                  //         final weekStart = _getStartOfWeek(newDate);
-                  //         dates = List.generate(7,
-                  //             (index) => weekStart.add(Duration(days: index)));
-                  //       });
-                  //
-                  //       // Load routines for the new date
-                  //       // Provider.of<DailyRoutineProvider>(context,
-                  //       //         listen: false)
-                  //       //     .loadRoutinesForDate(newDate);
-                  //     },
-                  //   ),
-                  // ),
+                  SizedBox(
+                    height: dailyRoutineHeight,
+                    child: DailyRoutineWidget(
+                      selectedDate: selectedDate,
+                      onDateChanged: (DateTime newDate) {
+                        final daysDifference =
+                            newDate.difference(DateTime(2024, 1, 1)).inDays;
+                        final newPageIndex = 3650 + (daysDifference ~/ 7);
+
+                        _pageController.animateToPage(
+                          newPageIndex,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+
+                        setState(() {
+                          selectedDate = newDate;
+                          _currentPageIndex = newPageIndex;
+                          final weekStart = _getStartOfWeek(newDate);
+                          dates = List.generate(7,
+                              (index) => weekStart.add(Duration(days: index)));
+                        });
+
+                        // Load routines for the new date
+                        // Provider.of<DailyRoutineProvider>(context,
+                        //         listen: false)
+                        //     .loadRoutinesForDate(newDate);
+                      },
+                    ),
+                  ),
                   SizedBox(height: bottomMargin),
                 ],
               ),

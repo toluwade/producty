@@ -4,27 +4,27 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 
 import '../failures/failures.dart';
-import '../network_info/network_info.dart';
+import '../network/network_info.dart';
 
 class ServiceRunner<F extends Failure, T> {
   final NetworkInfo networkInfo;
 
   ServiceRunner(this.networkInfo);
 
-  /// Wraps local data source calls with error handling.
-  Future<Either<F, T>> tryLocalAndCatch({
-    required Future<T> call,
-    required String errorTitle,
-  }) async {
-    try {
-      return Right(await call);
-    } on Exception catch (e) {
-      return Left(CacheFailure(
-        title: errorTitle,
-        message: _formatException(e),
-      ) as F);
-    }
-  }
+  // /// Wraps local data source calls with error handling.
+  // Future<Either<F, T>> tryLocalAndCatch({
+  //   required Future<T> call,
+  //   required String errorTitle,
+  // }) async {
+  //   try {
+  //     return Right(await call);
+  //   } on Exception catch (e) {
+  //     return Left(CacheFailure(
+  //       title: errorTitle,
+  //       message: _formatException(e),
+  //     ) as F);
+  //   }
+  // }
 
   /// Wraps remote data source calls with network check and error handling.
   Future<Either<F, T>> tryRemoteAndCatch({

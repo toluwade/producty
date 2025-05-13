@@ -15,6 +15,8 @@ class HiveConstants {
 
   static const int usagePurposeHiveId = 3;
   static const int loginProviderHiveId = 4;
+  static const int frequencyHiveId = 5;
+  static const int reminderHiveId = 6;
 
 // Add more as needed
 }

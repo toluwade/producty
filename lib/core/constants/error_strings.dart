@@ -24,6 +24,13 @@ class ErrorStrings {
   //Authentication Error Strings
   static const SEND_OTP_ERROR = 'Send OTP Error';
   static const VERIFY_OTP_ERROR = 'Verify OTP Error';
+  static const GET_TASKS_ERROR = 'Get Tasks Error';
+  static const CREATE_TASK_ERROR = 'Create Task Error';
+  static const RESTORE_TASK_ERROR = 'Restore Task Error';
+  static const TOGGLE_TASK_ERROR = 'Toggle Task Error';
+  static const HARD_DELETE_TASK_ERROR = 'Hard Delete Error';
+  static const SOFT_DELETE_TASK_ERROR = 'Soft Delete Error';
+
   // static const LOG_OUT_ERROR = 'Log-Out Error';
   // static const REGISTER_ERROR = 'Registration Error';
   // static const RESET_PASSWORD_ERROR = 'Reset Password Error';

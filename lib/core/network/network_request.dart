@@ -71,6 +71,15 @@ class NetworkRequestImpl implements NetworkRequest {
 
     _dio.interceptors.add(
       InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final accessToken = AuthManager.instance.accessToken;
+
+          if (accessToken != null) {
+            options.headers['Authorization'] = 'Bearer $accessToken';
+          }
+
+          handler.next(options);
+        },
         onError: (error, handler) async {
           final statusCode = error.response?.statusCode;
 
@@ -169,4 +178,9 @@ class NetworkRequestImpl implements NetworkRequest {
   }) {
     return _dio.delete(url, data: body, options: Options(headers: headers));
   }
+}
+
+extension ResponseExtension on Response {
+  bool get isSuccess =>
+      statusCode != null && statusCode! >= 200 && statusCode! < 300;
 }
