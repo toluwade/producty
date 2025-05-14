@@ -7,7 +7,7 @@ import '../model/user.dart';
 
 abstract class AuthLocalDataSource {
   Future<AuthSession?> getAuthSession();
-  Future<void> saveAuthSession(AuthSession session);
+  Future<void> saveAuthSession(AuthSession session, bool withUser);
   Future<void> clearAuthSession();
   Stream<User?> streamUserStatus();
 }
@@ -49,7 +49,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   }
 
   @override
-  Future<void> saveAuthSession(AuthSession session) async {
+  Future<void> saveAuthSession(AuthSession session, bool withUser) async {
     await _secureStorage.write(
       key: _accessTokenKey,
       value: session.accessToken,
@@ -58,6 +58,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       key: _refreshTokenKey,
       value: session.refreshToken,
     );
+
+    if (!withUser) return;
 
     final userBox = await _openBox<User>();
     await userBox.put(_userKey, session.user);

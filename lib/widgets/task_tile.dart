@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:producty/utils/extensions/date_time.dart';
 
 import '../feature/tasks/data/model/task.dart';
@@ -14,29 +15,33 @@ class TaskTile extends StatelessWidget {
     this.onTap,
   }) : super(key: key);
 
-  // IconData _getTaskIcon() {
-  //   if (task.date.contains('8:00 AM')) {
-  //     return Iconsax.alarm;
-  //   } else if (entry.time.contains('9:00 AM')) {
-  //     return Iconsax.coffee;
-  //   } else if (entry.time.contains('10:00 AM')) {
-  //     return Iconsax.briefcase;
-  //   } else {
-  //     return Iconsax.clock;
-  //   }
-  // }
-  //
-  // Color _getIconColor() {
-  //   if (entry.time.contains('8:00 AM')) {
-  //     return Colors.green;
-  //   } else if (entry.time.contains('9:00 AM')) {
-  //     return Colors.orange;
-  //   } else if (entry.time.contains('10:00 AM')) {
-  //     return Colors.blue;
-  //   } else {
-  //     return Colors.grey.shade600;
-  //   }
-  // }
+  IconData _getTaskIcon() {
+    final hour = task.date.hour;
+
+    if (hour >= 5 && hour < 12) {
+      return Iconsax.sun_1; // Morning icon
+    } else if (hour >= 12 && hour < 17) {
+      return Iconsax.cloud_sunny; // Afternoon icon
+    } else if (hour >= 17 && hour < 21) {
+      return Iconsax.moon; // Evening icon
+    } else {
+      return Iconsax.moon; // Night icon
+    }
+  }
+
+  Color _getIconColor() {
+    final hour = task.date.hour;
+
+    if (hour >= 5 && hour < 12) {
+      return Colors.orange; // Morning
+    } else if (hour >= 12 && hour < 17) {
+      return Colors.blue; // Afternoon
+    } else if (hour >= 17 && hour < 21) {
+      return Colors.purple; // Evening
+    } else {
+      return Colors.grey.shade600; // Night
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,32 +51,32 @@ class TaskTile extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(6.r),
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 8.h),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Icon Container
-              // Container(
-              //   width: 32.h,
-              //   height: 32.h,
-              //   decoration: BoxDecoration(
-              //     shape: BoxShape.circle,
-              //     color: _getIconColor().withOpacity(0.1),
-              //     border: Border.all(
-              //       color: _getIconColor(),
-              //       width: 1.5.w,
-              //     ),
-              //   ),
-              //   child: Center(
-              //     child: Icon(
-              //       _getTaskIcon(),
-              //       size: 16.sp,
-              //       color: _getIconColor(),
-              //     ),
-              //   ),
-              // ),
+              Container(
+                width: 32.h,
+                height: 32.h,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _getIconColor().withValues(alpha: .1),
+                  border: Border.all(
+                    color: _getIconColor(),
+                    width: 1.5.w,
+                  ),
+                ),
+                child: Center(
+                  child: Icon(
+                    _getTaskIcon(),
+                    size: 16.sp,
+                    color: _getIconColor(),
+                  ),
+                ),
+              ),
               SizedBox(width: 16.w),
 
               // Task Content
@@ -96,7 +101,8 @@ class TaskTile extends StatelessWidget {
                         color: isDarkMode ? Colors.white : Colors.black87,
                       ),
                     ),
-                    if (task.otherDetails != null) ...[
+                    if (task.otherDetails != null &&
+                        task.otherDetails!.isNotEmpty) ...[
                       SizedBox(height: 2.h),
                       Text(
                         task.otherDetails!,

@@ -52,7 +52,7 @@ class NetworkRequestImpl implements NetworkRequest {
             connectTimeout: const Duration(seconds: 60),
             receiveTimeout: const Duration(seconds: 60),
             sendTimeout: const Duration(seconds: 60),
-            validateStatus: (s) => s != null && s < 500,
+            //  validateStatus: (s) => s != null && s < 500,
           ),
         ) {
     if (kDebugMode) {

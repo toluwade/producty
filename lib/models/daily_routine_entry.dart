@@ -40,23 +40,4 @@ class DailyRoutineEntry {
       isCompleted: json['isCompleted'] ?? false,
     );
   }
-
-  // Default entries for initial state
-  static List<DailyRoutineEntry> get defaultEntries => [
-        DailyRoutineEntry(
-          time: '08:00 AM',
-          title: 'Morning Workout',
-          description: 'Yoga and stretching',
-        ),
-        DailyRoutineEntry(
-          time: '09:30 AM',
-          title: 'Breakfast',
-          description: 'Healthy breakfast and coffee',
-        ),
-        DailyRoutineEntry(
-          time: '11:00 AM',
-          title: 'Work Session',
-          description: 'Focus on priority tasks',
-        ),
-      ];
 }

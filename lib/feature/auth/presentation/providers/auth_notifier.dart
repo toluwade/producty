@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../application/auth_manager.dart';
 import '../../data/dto/request_otp_dto.dart';
 import '../../data/dto/verify_otp_dto.dart';
+import '../../data/model/auth_session.dart';
 import '../../data/repository/auth_repository.dart';
 import 'auth_state.dart';
 
@@ -43,9 +44,11 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
     result.fold(
       (l) => state = AuthFailure(l),
       (r) async {
-        state = AuthSuccess(
-          await AuthManager.instance.saveAuthSession(r),
-        );
+        state = AuthSuccess(r);
+
+        bool isExisting = r.status == AuthStatus.existing;
+
+        await AuthManager.instance.saveAuthSession(r, withUser: isExisting);
       },
     );
   }

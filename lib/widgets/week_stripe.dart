@@ -48,8 +48,8 @@ class WeekStripe extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isStatic) {
-      return Container(
-        height: 80.h,
+      return SizedBox(
+        height: 82.h,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: dates.map((date) {
@@ -64,7 +64,7 @@ class WeekStripe extends StatelessWidget {
     }
 
     return SizedBox(
-      height: 80.h,
+      height: 82.h,
       child: PageView.builder(
         controller: pageController,
         allowImplicitScrolling: true,
@@ -74,7 +74,6 @@ class WeekStripe extends StatelessWidget {
 
           final currentDate = _getDateFromPageIndex(pageIndex);
           final weekStart = _getMondayOfWeek(currentDate);
-          final weekDates = _generateWeekDates(weekStart);
 
           // Find the same weekday in the new week
           final newSelectedDate =
@@ -173,6 +172,7 @@ class WeekStripe extends StatelessWidget {
                               ),
                             ),
                           ),
+                          SizedBox(height: 2.h),
                         ],
                       ),
                     ),

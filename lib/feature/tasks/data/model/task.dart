@@ -7,28 +7,37 @@ part 'task.g.dart'; // For json_serializable
 
 // Your original Frequency enum (unchanged)
 @HiveType(typeId: HiveConstants.frequencyHiveId)
+@JsonEnum(fieldRename: FieldRename.screamingSnake)
 enum Frequency {
   @HiveField(0)
-  daily,
+  once,
   @HiveField(1)
-  weekly,
+  daily,
   @HiveField(2)
-  monthly,
+  weekly,
   @HiveField(3)
-  custom,
+  monthly,
 }
 
 // Your original Reminder enum (unchanged)
 @HiveType(typeId: HiveConstants.reminderHiveId)
+@JsonEnum(fieldRename: FieldRename.screamingSnake)
 enum Reminder {
   @HiveField(0)
-  none,
+  start('At start of task'),
+
   @HiveField(1)
-  fiveMinutes,
+  end('At the end'),
+
   @HiveField(2)
-  tenMinutes,
+  fiveMinutesBefore('5 min before start'),
+
   @HiveField(3)
-  fifteenMinutes,
+  other('Other');
+
+  const Reminder(this.label);
+
+  final String label;
 }
 
 // Your Filter enum (unchanged)
@@ -38,7 +47,6 @@ enum Filter {
   all,
 }
 
-// Modified Task class using json_serializable
 @HiveType(typeId: HiveConstants.taskHiveId)
 @JsonSerializable()
 class Task {
@@ -99,11 +107,11 @@ class Task {
     this.isCompleted = false,
     this.isDeleted = false,
     required this.userId,
-    required this.createdAt,
+    DateTime? createdAt, // Optional parameter for createdAt
     this.updatedAt,
     this.deletedAt,
     this.isSynced = false,
-  });
+  }) : createdAt = createdAt ?? DateTime.now();
 
   // JSON Serialization
   factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);

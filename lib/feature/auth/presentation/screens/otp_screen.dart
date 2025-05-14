@@ -48,7 +48,7 @@ class OTPScreen extends HookConsumerWidget {
     // Start or restart the countdown timer
     void startTimer() {
       timerRef.value?.cancel();
-      countdown.value = 30;
+      countdown.value = 60;
       timerRef.value = Timer.periodic(const Duration(seconds: 1), (t) {
         if (countdown.value > 0) {
           countdown.value -= 1;

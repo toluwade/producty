@@ -18,11 +18,12 @@ class AuthManager {
     user = _session?.user;
   }
 
-  Future<AuthSession> saveAuthSession(AuthSession session) async {
-    await _localSource.saveAuthSession(session);
+  Future<void> saveAuthSession(AuthSession session,
+      {bool withUser = true}) async {
+    await _localSource.saveAuthSession(session, withUser);
     _session = session;
-    user = _session?.user;
-    return _session!;
+
+    if (withUser) user = _session?.user;
   }
 
   Future<User?> refreshAuthenticatedUser() async {
@@ -48,7 +49,7 @@ class AuthManager {
     if (_session == null) return;
 
     _session = _session!.copyWith(accessToken: accessToken);
-    await _localSource.saveAuthSession(_session!);
+    await _localSource.saveAuthSession(_session!, false);
   }
 
   String? get refreshToken => _session?.refreshToken;

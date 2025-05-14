@@ -6,10 +6,10 @@ import 'package:producty/config/router/app_router.gr.dart';
 
 import '../../../../config/router/app_router.dart';
 import '../../../../widgets/custom_toast.dart';
-import '../../../../widgets/daily_routine_widget.dart';
 import '../../../../widgets/week_stripe.dart';
 import '../widgets/calendar_bottom_sheet.dart';
 import '../widgets/coming_soon_bottom_sheet.dart';
+import '../widgets/daily_routine_widget.dart';
 import '../widgets/dashboard_app_bar.dart';
 
 @RoutePage()
@@ -262,18 +262,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     final (year, month) = _calculateMonthAndYear(_currentPageIndex);
     final currentMonthYear = '${_getMonthName(month)} $year';
 
-    final screenHeight = MediaQuery.of(context).size.height;
-    final statusBarHeight = MediaQuery.of(context).padding.top;
-    final bottomMargin = 10.h;
-    const appBarHeight = kToolbarHeight;
-    final weekViewHeight = 100.h;
-
-    final dailyRoutineHeight = screenHeight -
-        statusBarHeight -
-        appBarHeight -
-        weekViewHeight -
-        bottomMargin;
-
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.grey[900] : const Color(0xFFF1F1F1),
       appBar: DashboardAppBar(
@@ -294,81 +282,75 @@ class _DashboardScreenState extends State<DashboardScreen>
         isAnalyticsMode: _isAnalyticsMode,
       ),
       body: SafeArea(
-        bottom: false,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w),
           child: RefreshIndicator(
             onRefresh: _refreshDashboard,
             color: Theme.of(context).primaryColor,
             backgroundColor: isDarkMode ? Colors.grey[800] : Colors.white,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(height: 5.h),
-                  WeekStripe(
-                    pageController: _pageController,
-                    selectedDate: selectedDate,
-                    onDateSelected: _onDateSelected,
-                    isDarkMode: isDarkMode,
-                    isRefreshing: _isRefreshing,
-                    dates: dates,
-                    currentPageIndex: _currentPageIndex,
-                    onPageChanged: (int pageIndex) {
-                      if (_isRefreshing) return;
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 5.h),
+                WeekStripe(
+                  pageController: _pageController,
+                  selectedDate: selectedDate,
+                  onDateSelected: _onDateSelected,
+                  isDarkMode: isDarkMode,
+                  isRefreshing: _isRefreshing,
+                  dates: dates,
+                  currentPageIndex: _currentPageIndex,
+                  onPageChanged: (int pageIndex) {
+                    if (_isRefreshing) return;
 
-                      HapticFeedback.lightImpact();
-                      final currentDate = _getDateFromPageIndex(pageIndex);
+                    HapticFeedback.lightImpact();
+                    final currentDate = _getDateFromPageIndex(pageIndex);
+
+                    setState(() {
+                      _currentPageIndex = pageIndex;
+                      selectedDate = currentDate;
+                      final weekStart = _getStartOfWeek(currentDate);
+                      dates = List.generate(
+                        7,
+                        (index) => weekStart.add(
+                          Duration(days: index),
+                        ),
+                      );
+                    });
+                  },
+                ),
+                SizedBox(height: 5.h),
+                Expanded(
+                  child: DailyRoutineWidget(
+                    selectedDate: selectedDate,
+                    onDateChanged: (DateTime newDate) {
+                      final daysDifference =
+                          newDate.difference(DateTime(2024, 1, 1)).inDays;
+                      final newPageIndex = 3650 + (daysDifference ~/ 7);
+
+                      _pageController.animateToPage(
+                        newPageIndex,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
 
                       setState(() {
-                        _currentPageIndex = pageIndex;
-                        selectedDate = currentDate;
-                        final weekStart = _getStartOfWeek(currentDate);
+                        selectedDate = newDate;
+                        _currentPageIndex = newPageIndex;
+                        final weekStart = _getStartOfWeek(newDate);
                         dates = List.generate(
-                          7,
-                          (index) => weekStart.add(
-                            Duration(days: index),
-                          ),
-                        );
+                            7, (index) => weekStart.add(Duration(days: index)));
                       });
+
+                      // Load routines for the new date
+                      // Provider.of<DailyRoutineProvider>(context,
+                      //         listen: false)
+                      //     .loadRoutinesForDate(newDate);
                     },
                   ),
-                  SizedBox(height: 5.h),
-                  SizedBox(
-                    height: dailyRoutineHeight,
-                    child: DailyRoutineWidget(
-                      selectedDate: selectedDate,
-                      onDateChanged: (DateTime newDate) {
-                        final daysDifference =
-                            newDate.difference(DateTime(2024, 1, 1)).inDays;
-                        final newPageIndex = 3650 + (daysDifference ~/ 7);
-
-                        _pageController.animateToPage(
-                          newPageIndex,
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        );
-
-                        setState(() {
-                          selectedDate = newDate;
-                          _currentPageIndex = newPageIndex;
-                          final weekStart = _getStartOfWeek(newDate);
-                          dates = List.generate(7,
-                              (index) => weekStart.add(Duration(days: index)));
-                        });
-
-                        // Load routines for the new date
-                        // Provider.of<DailyRoutineProvider>(context,
-                        //         listen: false)
-                        //     .loadRoutinesForDate(newDate);
-                      },
-                    ),
-                  ),
-                  SizedBox(height: bottomMargin),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

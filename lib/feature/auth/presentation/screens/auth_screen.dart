@@ -87,9 +87,9 @@ class AuthenticationScreen extends HookConsumerWidget {
       authStateNotifierProvider,
       (prev, next) {
         if (next is OtpSendFailure) {
-          showToast(next.failure.message, context);
+          showToast(next.failure.message, context, isError: true);
         } else if (next is OtpSentSuccess) {
-          Nav.push(context, OTPRoute(email: email.text));
+          Nav.push(context, OTPRoute(email: email.text.trim().toLowerCase()));
         }
       },
     );

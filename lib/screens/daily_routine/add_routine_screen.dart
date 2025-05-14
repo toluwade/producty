@@ -1,39 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:intl/intl.dart';
-import 'package:flutter/services.dart';
-import '../../models/daily_routine_entry.dart';
-import '../../widgets/custom_time_picker.dart';
+import 'package:producty/feature/tasks/data/model/task.dart';
+import 'package:producty/feature/tasks/presentation/extensions/string_extensions.dart';
+import 'package:uuid/uuid.dart';
 
-class AddRoutineScreen extends StatefulWidget {
-  final Function(DailyRoutineEntry) onRoutineAdded;
+class AddRoutineSheet extends StatefulWidget {
+  final Function(Task) onRoutineAdded;
   final DateTime selectedDate;
 
-  const AddRoutineScreen({
+  const AddRoutineSheet({
     Key? key,
     required this.onRoutineAdded,
     required this.selectedDate,
   }) : super(key: key);
 
   @override
-  State<AddRoutineScreen> createState() => _AddRoutineScreenState();
+  State<AddRoutineSheet> createState() => _AddRoutineSheetState();
 }
 
-class _AddRoutineScreenState extends State<AddRoutineScreen> {
+class _AddRoutineSheetState extends State<AddRoutineSheet> {
   final _titleController = TextEditingController();
   final _detailsController = TextEditingController();
   String _selectedTime = '9:00 AM';
   String _selectedDuration = '1m';
-  String _displayTimeRange = '';
   String _selectedCategory = 'Work';
-  String _selectedFrequency = 'Once';
-  String _selectedReminder = 'At start of task';
+  Frequency _selectedFrequency = Frequency.once;
+  Reminder _selectedReminder = Reminder.start;
   int _currentStep = 0;
   double _scrollOffset = 0.0;
   DateTime? _baseScrollTime;
-
-  static const String _createTaskText = 'Create a New Task';
 
   final Map<String, Color> categoryColors = {
     'Work': Colors.blue,
@@ -43,7 +40,6 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
   };
 
   final List<String> durations = ['1m', '5m', '15m', '30m', '1h', 'Custom'];
-  final List<String> frequencies = ['Once', 'Daily', 'Weekly', 'Monthly'];
   final List<String> reminders = [
     'At start of task',
     'At the end',
@@ -66,7 +62,7 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                   height: 24.w,
                   decoration: BoxDecoration(
                     color: isDarkMode
-                        ? const Color(0xFFACF75F).withOpacity(0.2)
+                        ? const Color(0xFFACF75F).withValues(alpha: .2)
                         : const Color(0xFFACF75F),
                     borderRadius: BorderRadius.circular(6.r),
                   ),
@@ -133,7 +129,6 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                               final newTime = _baseScrollTime!
                                   .add(Duration(minutes: minutesToAdd));
                               _selectedTime = _formatTime(newTime);
-                              _updateTimeRange();
 
                               // Haptic feedback every 15 minutes
                               if (minutesToAdd % 15 == 0 &&
@@ -156,7 +151,6 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                               );
                               if (newTime != null) {
                                 _selectedTime = _formatTime(newTime);
-                                _updateTimeRange();
                                 HapticFeedback.mediumImpact();
                               }
                             }
@@ -184,7 +178,7 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                   // Time slots display
                   ShaderMask(
                     shaderCallback: (Rect bounds) {
-                      return LinearGradient(
+                      return const LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
@@ -202,12 +196,6 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                       children: List.generate(11, (index) {
                         final isMiddle = index == 5;
                         final time = _generateTimeForIndex(index - 5);
-                        final distanceFromMiddle = (index - 5).abs();
-                        final opacity = isMiddle
-                            ? 1.0
-                            : distanceFromMiddle <= 4
-                                ? (1.0 - (0.2 * distanceFromMiddle))
-                                : 0.2;
 
                         // Calculate position with scroll offset
                         final baseOffset = (index - 5) * 22.h;
@@ -226,7 +214,6 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                             onTapUp: (_) {
                               setState(() {
                                 _selectedTime = time;
-                                _updateTimeRange();
                               });
                               HapticFeedback.mediumImpact();
                             },
@@ -281,17 +268,18 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
               ),
             ),
             child: Container(
-              height: 42.h,
+              margin: EdgeInsets.symmetric(horizontal: 6.w),
+              height: 50.h,
               decoration: BoxDecoration(
-                color: isDarkMode ? Colors.grey[900] : Colors.grey[200],
+                color: isDarkMode ? Colors.grey[900] : Colors.transparent,
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Row(
                 children: [
                   for (String duration in [
-                    '1',
-                    '15',
-                    '30',
+                    '1m',
+                    '15m',
+                    '30m',
                     '45m',
                     '1h',
                     '1.5h'
@@ -304,12 +292,11 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                                 duration.endsWith('m') || duration.endsWith('h')
                                     ? duration
                                     : '${duration}m';
-                            _updateTimeRange();
                           });
                           HapticFeedback.mediumImpact();
                         },
                         child: Container(
-                          height: 42.h,
+                          height: 40.h,
                           decoration: BoxDecoration(
                             color: (_selectedDuration == duration ||
                                     _selectedDuration == '${duration}m')
@@ -354,24 +341,24 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
           _buildFormField(
             label: 'How often?',
             icon: Iconsax.repeat_circle,
-            child: DropdownButtonFormField<String>(
+            child: DropdownButtonFormField<Frequency>(
               value: _selectedFrequency,
               dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
               style: TextStyle(
                 color: isDarkMode ? Colors.white : Colors.black,
                 fontSize: 14.sp,
               ),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
-              items: frequencies.map((String value) {
-                return DropdownMenuItem<String>(
+              items: Frequency.values.map((Frequency value) {
+                return DropdownMenuItem<Frequency>(
                   value: value,
-                  child: Text(value),
+                  child: Text(value.name.capitalize()),
                 );
               }).toList(),
-              onChanged: (String? newValue) {
+              onChanged: (Frequency? newValue) {
                 if (newValue != null) {
                   setState(() => _selectedFrequency = newValue);
                 }
@@ -379,32 +366,34 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
             ),
           ),
           _buildFormField(
-            label: 'Reminder',
-            icon: Iconsax.notification,
-            child: DropdownButtonFormField<String>(
-              value: _selectedReminder,
-              dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
-              style: TextStyle(
-                color: isDarkMode ? Colors.white : Colors.black,
-                fontSize: 14.sp,
-              ),
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-              ),
-              items: reminders.map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  setState(() => _selectedReminder = newValue);
-                }
-              },
-            ),
-          ),
+              label: 'Reminder',
+              icon: Iconsax.notification,
+              child: DropdownButtonFormField<Reminder>(
+                value: _selectedReminder,
+                dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black,
+                  fontSize: 14.sp,
+                ),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                items: Reminder.values.map((Reminder reminder) {
+                  return DropdownMenuItem<Reminder>(
+                    value: reminder,
+                    child:
+                        Text(reminder.label), // Using the label from the enum
+                  );
+                }).toList(),
+                onChanged: (Reminder? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      _selectedReminder = newValue;
+                    });
+                  }
+                },
+              )),
         ],
       ),
       // Step 3: Details
@@ -435,20 +424,6 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
     ];
   }
 
-  void _updateTimeRange() {
-    final startTime = _parseTime(_selectedTime);
-    if (startTime != null) {
-      if (_selectedDuration == '1m') {
-        _displayTimeRange = _formatTime(startTime);
-      } else {
-        final duration = _parseDuration(_selectedDuration);
-        final endTime = startTime.add(Duration(minutes: duration));
-        _displayTimeRange =
-            '${_formatTime(startTime)} - ${_formatTime(endTime)}';
-      }
-    }
-  }
-
   DateTime? _parseTime(String timeStr) {
     try {
       final parts = timeStr.split(':');
@@ -467,43 +442,12 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
     }
   }
 
-  int _parseDuration(String durationStr) {
-    try {
-      if (durationStr.endsWith('h')) {
-        // Handle hour format (including decimals)
-        final hourValue =
-            double.parse(durationStr.substring(0, durationStr.length - 1));
-        return (hourValue * 60).round();
-      } else if (durationStr.endsWith('m')) {
-        // Handle minute format
-        return int.parse(durationStr.substring(0, durationStr.length - 1));
-      }
-      return 0;
-    } catch (e) {
-      return 0;
-    }
-  }
-
   String _formatTime(DateTime time) {
     final hour =
         time.hour == 0 ? 12 : (time.hour > 12 ? time.hour - 12 : time.hour);
     final minute = time.minute.toString().padLeft(2, '0');
     final period = time.hour >= 12 ? 'PM' : 'AM';
     return '$hour:$minute $period';
-  }
-
-  String _getTimeRangeDisplay(String startTime) {
-    final start = _parseTime(startTime);
-    if (start != null) {
-      if (_selectedDuration == '1m') {
-        return startTime;
-      } else {
-        final duration = _parseDuration(_selectedDuration);
-        final endTime = start.add(Duration(minutes: duration));
-        return '${_formatTime(start)} - ${_formatTime(endTime)}';
-      }
-    }
-    return startTime;
   }
 
   bool get _isLastStep => _currentStep == _steps.length - 1;
@@ -531,7 +475,6 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
     required String label,
     required Widget child,
     IconData? icon,
-    bool isLast = false,
     bool isTimeField = false,
     bool isForHowLong = false,
     Widget? customAction,
@@ -566,7 +509,7 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
             color: isTimeField
                 ? Colors.transparent
                 : (isDarkMode
-                    ? Colors.grey[800]!.withOpacity(0.5)
+                    ? Colors.grey[800]!.withValues(alpha: .5)
                     : Colors.grey[100]),
             borderRadius: BorderRadius.circular(12.r),
           ),
@@ -611,8 +554,8 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
           selected: isSelected,
           selectedColor: entry.value,
           backgroundColor: isDarkMode
-              ? Colors.grey[800]!.withOpacity(0.5)
-              : Colors.grey[200]!.withOpacity(0.5),
+              ? Colors.grey[800]!.withValues(alpha: .5)
+              : Colors.grey[200]!.withValues(alpha: .5),
           onSelected: (bool selected) {
             if (selected) {
               setState(() => _selectedCategory = entry.key);
@@ -698,7 +641,7 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                           ),
                           SizedBox(width: 8.w),
                           Text(
-                            _createTaskText,
+                            'Create a New Task',
                             style: TextStyle(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w500,
@@ -717,7 +660,7 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                         padding: EdgeInsets.all(8.w),
                         decoration: BoxDecoration(
                           color: isDarkMode
-                              ? Colors.grey[800]!.withOpacity(0.5)
+                              ? Colors.grey[800]!.withValues(alpha: .5)
                               : Colors.grey[100],
                           borderRadius: BorderRadius.circular(12.r),
                         ),
@@ -758,7 +701,7 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: .05),
                       blurRadius: 10,
                       offset: const Offset(0, -5),
                     ),
@@ -775,7 +718,7 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                             margin: EdgeInsets.only(right: 8.w),
                             decoration: BoxDecoration(
                               color: isDarkMode
-                                  ? Colors.grey[800]!.withOpacity(0.5)
+                                  ? Colors.grey[800]!.withValues(alpha: .5)
                                   : Colors.grey[100],
                               borderRadius: BorderRadius.circular(15.r),
                             ),
@@ -799,13 +742,21 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                         onTap: () {
                           if (_isLastStep) {
                             if (_titleController.text.isNotEmpty) {
-                              final newEntry = DailyRoutineEntry(
+                              final newTask = Task(
+                                id: const Uuid().v4(),
+                                userId: '',
                                 title: _titleController.text,
-                                description: _detailsController.text,
-                                time: _selectedTime,
+                                date: _selectedTime
+                                    .toDateTimeString(widget.selectedDate),
+                                duration: _selectedDuration.toMinutes(),
+                                frequency: _selectedFrequency,
+                                reminder: _selectedReminder,
+                                category: _selectedCategory,
+                                otherDetails: _detailsController.text,
+                                updatedAt: DateTime.now(),
                                 isCompleted: false,
                               );
-                              widget.onRoutineAdded(newEntry);
+                              widget.onRoutineAdded(newTask);
                             }
                           } else {
                             _nextStep();
@@ -821,7 +772,7 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              _isLastStep ? _createTaskText : 'Continue',
+                              _isLastStep ? 'Create' : 'Continue',
                               style: TextStyle(
                                 fontSize: 15.sp,
                                 fontWeight: FontWeight.w600,
